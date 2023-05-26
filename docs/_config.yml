@@ -9,12 +9,12 @@ auto_page_title: true
 sidebar:
   - label: Introduction
     children:
-      - intro-overview
-      - intro-design
-      - intro-layout
+      - overview
+      - design
+      - layout
   - label: Quick Start
     children:
-      - quick-start-start
-      - quick-start-usage
-      - quick-start-plugins
-      - quick-start-examples
+      - start
+      - usage
+      - plugins
+      - examples
