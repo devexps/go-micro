@@ -6,6 +6,9 @@ baseurl: /go-micro
 search_enabled: true
 auto_page_title: true
 
+google_analytics: G-L24NDYGW09
+google_verify: x76CJs4mUTH2_rQAC2Qnp6zvg_aLuWIWdd1o4o7iPIU
+
 sidebar:
   - label: Introduction
     children:
