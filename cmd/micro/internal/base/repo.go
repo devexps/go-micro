@@ -113,14 +113,15 @@ func (r *Repo) CopyTo(ctx context.Context, to string, modPath string, ignores []
 }
 
 // CopyToV2 copies the repository to project path
-func (r *Repo) CopyToV2(ctx context.Context, to string, modPath string, ignores, replaces []string) error {
+func (r *Repo) CopyToV2(ctx context.Context, to string, servicePath, modPath string, ignores, replaces []string) error {
+	from := filepath.Join(r.Path(), servicePath)
 	if err := r.Clone(ctx); err != nil {
 		return err
 	}
-	mod, err := ModulePath(filepath.Join(r.Path(), "go.mod"))
+	mod, err := ModulePath(filepath.Join(from, "go.mod"))
 	if err != nil {
 		return err
 	}
 	replaces = append([]string{mod, modPath}, replaces...)
-	return copyDir(r.Path(), to, replaces, ignores)
+	return copyDir(from, to, replaces, ignores)
 }

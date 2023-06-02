@@ -22,16 +22,18 @@ type Project struct {
 // CmdNew represents the new command.
 var CmdNew = &cobra.Command{
 	Use:   "new",
-	Short: "Create a service template",
-	Long:  "Create a service project using the repository template. Example: micro new helloworld",
+	Short: "Create a project template",
+	Long:  "Create a project using the repository template. Example: micro new your_project_name",
 	Run:   run,
 }
 
 var (
-	repoURL string
-	branch  string
-	timeout string
-	nomod   bool
+	repoURL     string
+	branch      string
+	timeout     string
+	serviceOnly bool
+
+	serviceDefaultPath = "helloworld"
 )
 
 func init() {
@@ -42,7 +44,7 @@ func init() {
 	CmdNew.Flags().StringVarP(&repoURL, "repo-url", "r", repoURL, "layout repo")
 	CmdNew.Flags().StringVarP(&branch, "branch", "b", branch, "repo branch")
 	CmdNew.Flags().StringVarP(&timeout, "timeout", "t", timeout, "time out")
-	CmdNew.Flags().BoolVarP(&nomod, "nomod", "", nomod, "retain go mod")
+	CmdNew.Flags().BoolVarP(&serviceOnly, "service-only", "", serviceOnly, "only create service")
 }
 
 func run(_ *cobra.Command, args []string) {
@@ -73,7 +75,7 @@ func run(_ *cobra.Command, args []string) {
 	p := &Project{Name: projectName, Path: projectName}
 	done := make(chan error, 1)
 	go func() {
-		if !nomod {
+		if !serviceOnly {
 			done <- p.New(ctx, workingDir, repoURL, branch)
 			return
 		}

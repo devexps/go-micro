@@ -29,27 +29,19 @@ func (p *Project) New(ctx context.Context, dir string, layout string, branch str
 		}
 		os.RemoveAll(to)
 	}
-	fmt.Printf("🚀 Creating service %s, layout repo is %s, please wait a moment.\n\n", p.Name, layout)
+	fmt.Printf("🚀 Creating project %s, layout repo is %s, please wait a moment.\n\n", p.Name, layout)
 	repo := base.NewRepo(layout, branch)
 	if err := repo.CopyTo(ctx, to, p.Path, []string{".git", ".github"}); err != nil {
 		return err
-	}
-	e := os.Rename(
-		filepath.Join(to, "cmd", "server"),
-		filepath.Join(to, "cmd", p.Name),
-	)
-	if e != nil {
-		return e
 	}
 	base.Tree(to, dir)
 
 	fmt.Printf("\n🍺 Project creation succeeded %s\n", color.GreenString(p.Name))
 	fmt.Print("💻 Use the following command to start the project 👇:\n\n")
 
-	fmt.Println(color.WhiteString("$ cd %s", p.Name))
-	fmt.Println(color.WhiteString("$ go generate ./..."))
-	fmt.Println(color.WhiteString("$ go build -o ./bin/ ./... "))
-	fmt.Println(color.WhiteString("$ ./bin/%s -conf ./configs\n", p.Name))
+	fmt.Println(color.WhiteString("$ cd %s/%s", p.Name, serviceDefaultPath))
+	fmt.Println(color.WhiteString("$ make all"))
+	fmt.Println(color.WhiteString("$ make run\n"))
 	fmt.Println("			🤝 Thanks for using Go-Micro")
 	fmt.Println("	📚 Tutorial: https://devexps.com/go-micro/getting-started/start")
 	return nil
