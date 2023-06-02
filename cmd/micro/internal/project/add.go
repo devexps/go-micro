@@ -11,7 +11,7 @@ import (
 )
 
 var repoAddIgnores = []string{
-	".git", ".github", "api", "README.md", "LICENSE", "go.mod", "go.sum", "third_party", "openapi.yaml", ".gitignore",
+	".git", ".github",
 }
 
 func (p *Project) Add(ctx context.Context, dir string, layout string, branch string, mod string) error {
@@ -22,7 +22,7 @@ func (p *Project) Add(ctx context.Context, dir string, layout string, branch str
 		override := false
 		prompt := &survey.Confirm{
 			Message: "📂 Do you want to override the folder ?",
-			Help:    "Delete the existing folder and create the project.",
+			Help:    "Delete the existing folder and create the service.",
 		}
 		e := survey.AskOne(prompt, &override)
 		if e != nil {
@@ -38,26 +38,18 @@ func (p *Project) Add(ctx context.Context, dir string, layout string, branch str
 
 	repo := base.NewRepo(layout, branch)
 
-	if err := repo.CopyToV2(ctx, to, filepath.Join(mod, p.Path), repoAddIgnores, []string{filepath.Join(p.Path, "api"), "api"}); err != nil {
+	if err := repo.CopyToV2(ctx, to, serviceDefaultPath, filepath.Join(mod, p.Path), repoAddIgnores, []string{filepath.Join(p.Path, "api"), "api"}); err != nil {
 		return err
-	}
-	e := os.Rename(
-		filepath.Join(to, "cmd", "server"),
-		filepath.Join(to, "cmd", p.Name),
-	)
-	if e != nil {
-		return e
 	}
 
 	base.Tree(to, dir)
 
-	fmt.Printf("\n🍺 Repository creation succeeded %s\n", color.GreenString(p.Name))
-	fmt.Print("💻 Use the following command to add a project 👇:\n\n")
+	fmt.Printf("\n🍺 Service creation succeeded %s\n", color.GreenString(p.Name))
+	fmt.Print("💻 Use the following command to start a service 👇:\n\n")
 
 	fmt.Println(color.WhiteString("$ cd %s", p.Name))
-	fmt.Println(color.WhiteString("$ go generate ./..."))
-	fmt.Println(color.WhiteString("$ go build -o ./bin/ ./... "))
-	fmt.Println(color.WhiteString("$ ./bin/%s -conf ./configs\n", p.Name))
+	fmt.Println(color.WhiteString("$ make all"))
+	fmt.Println(color.WhiteString("$ make run\n"))
 	fmt.Println("			🤝 Thanks for using Go-Micro")
 	fmt.Println("	📚 Tutorial: https://devexps.com/go-micro/getting-started/start")
 	return nil
