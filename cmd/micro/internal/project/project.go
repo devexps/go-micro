@@ -22,8 +22,8 @@ type Project struct {
 // CmdNew represents the new command.
 var CmdNew = &cobra.Command{
 	Use:   "new",
-	Short: "Create a project template",
-	Long:  "Create a project using the repository template. Example: micro new your_project_name",
+	Short: "Create a project / service template",
+	Long:  "Create a project / service using the repository template. Example: micro new your_project_name",
 	Run:   run,
 }
 

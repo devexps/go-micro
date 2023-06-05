@@ -16,7 +16,6 @@ var repoAddIgnores = []string{
 
 func (p *Project) Add(ctx context.Context, dir string, layout string, branch string, mod string) error {
 	to := filepath.Join(dir, p.Name)
-
 	if _, err := os.Stat(to); !os.IsNotExist(err) {
 		fmt.Printf("🚫 %s already exists\n", p.Name)
 		override := false
@@ -33,12 +32,45 @@ func (p *Project) Add(ctx context.Context, dir string, layout string, branch str
 		}
 		os.RemoveAll(to)
 	}
-
-	fmt.Printf("🚀 Add service %s, layout repo is %s, please wait a moment.\n\n", p.Name, layout)
+	toProto := filepath.Join(dir, "api", "proto", p.Name)
+	if _, err := os.Stat(toProto); !os.IsNotExist(err) {
+		fmt.Printf("🚫 %s proto already exists\n", p.Name)
+		override := false
+		prompt := &survey.Confirm{
+			Message: "📂 Do you want to override the folder ?",
+			Help:    "Delete the existing folder and create new api proto.",
+		}
+		e := survey.AskOne(prompt, &override)
+		if e != nil {
+			return e
+		}
+		if !override {
+			return err
+		}
+		os.RemoveAll(toProto)
+	}
+	fmt.Printf("🚀 Add proto %s, layout repo is %s, please wait a moment.\n\n", p.Name, layout)
 
 	repo := base.NewRepo(layout, branch)
 
-	if err := repo.CopyToV2(ctx, to, serviceDefaultPath, filepath.Join(mod, p.Path), repoAddIgnores, []string{filepath.Join(p.Path, "api"), "api"}); err != nil {
+	repoMod, err := base.ModulePath(filepath.Join(repo.Path(), "go.mod"))
+	if err != nil {
+		return err
+	}
+	from := filepath.Join(repo.Path(), serviceDefaultPath)
+	if err := repo.CopyToV2(ctx, from, to, filepath.Join(mod, p.Path), repoAddIgnores, []string{
+		filepath.Join(p.Path, "api"), "api",
+		filepath.Join(repoMod, "api"), filepath.Join(mod, "api"),
+		filepath.Join(repoMod, "pkg"), filepath.Join(mod, "pkg"),
+		serviceDefaultPath, p.Name,
+	}); err != nil {
+		return err
+	}
+
+	fromProto := filepath.Join(repo.Path(), "api", "proto", serviceDefaultPath)
+	if err := repo.CopyToApiProto(ctx, fromProto, toProto, repoAddIgnores, []string{
+		serviceDefaultPath, p.Name,
+	}); err != nil {
 		return err
 	}
 
