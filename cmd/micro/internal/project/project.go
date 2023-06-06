@@ -34,6 +34,8 @@ var (
 	serviceOnly bool
 
 	serviceDefaultPath = "helloworld"
+	protoGoPackage     = "package "
+	protoJavaPackage   = "dev.gomicro.api."
 )
 
 func init() {
