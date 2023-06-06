@@ -1,8 +1,8 @@
-module github.com/devexps/go-micro/plugins/registry/consul/v2
+module github.com/devexps/go-micro/registry/consul/v2
 
 go 1.18
 
-replace github.com/devexps/go-micro/v2 => ../../../
+replace github.com/devexps/go-micro/v2 => ../../
 
 require (
 	github.com/devexps/go-micro/v2 v2.0.0-00010101000000-000000000000
