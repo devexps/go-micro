@@ -1,5 +1,3 @@
-# Ignore all
-*
 # Reference https://github.com/github/gitignore/blob/master/Go.gitignore
 # Binaries for programs and plugins
 *.exe
@@ -39,3 +37,8 @@ bin/
 .vscode/
 .idea/
 *.swp
+
+# Ignore binary without extension
+*
+!/**/
+!*.*
