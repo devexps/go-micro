@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/devexps/go-micro/cmd/micro/v2/internal/project"
+	"github.com/devexps/go-micro/cmd/micro/v2/internal/run"
 	"github.com/spf13/cobra"
 	"log"
 )
@@ -15,6 +16,7 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(project.CmdNew)
+	rootCmd.AddCommand(run.CmdRun)
 }
 
 func main() {
