@@ -1,6 +1,8 @@
-module github.com/devexps/go-micro/plugins/registry/etcd/v2
+module github.com/devexps/go-micro/registry/etcd/v2
 
 go 1.18
+
+replace github.com/devexps/go-micro/v2 => ../../
 
 require (
 	github.com/devexps/go-micro/v2 v2.0.0-00010101000000-000000000000
@@ -24,5 +26,3 @@ require (
 	google.golang.org/grpc v1.50.1 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 )
-
-replace github.com/devexps/go-micro/v2 => ../../../
