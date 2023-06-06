@@ -8,6 +8,7 @@ import (
 	"github.com/fatih/color"
 	"os"
 	"path/filepath"
+	"regexp"
 )
 
 var repoAddIgnores = []string{
@@ -67,9 +68,13 @@ func (p *Project) Add(ctx context.Context, dir string, layout string, branch str
 		return err
 	}
 
+	protoPkgName := regexp.MustCompile(`[^a-zA-Z0-9._]+`).ReplaceAllString(p.Name, "")
 	fromProto := filepath.Join(repo.Path(), "api", "proto", serviceDefaultPath)
 	if err := repo.CopyToApiProto(ctx, fromProto, toProto, repoAddIgnores, []string{
+		protoGoPackage + serviceDefaultPath, protoGoPackage + protoPkgName,
+		protoJavaPackage + serviceDefaultPath, protoJavaPackage + protoPkgName,
 		serviceDefaultPath, p.Name,
+		filepath.Join(repoMod, "api"), filepath.Join(mod, "api"),
 	}); err != nil {
 		return err
 	}
