@@ -10,6 +10,7 @@ type authorizer struct {
 
 var _ engine.Authorizer = (*authorizer)(nil)
 
+// IsAuthorized .
 func (a authorizer) IsAuthorized(ctx context.Context) error {
 	return nil
 }
