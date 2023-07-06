@@ -6,8 +6,8 @@ import (
 	"github.com/casbin/casbin/v2/persist"
 )
 
-//go:embed model/restfull_with_role.conf
-var DefaultRestfullWithRoleModel string
+//go:embed model/rbac_model.conf
+var DefaultRBACModel string
 
 // Option is Casbin option
 type Option func(*options)
