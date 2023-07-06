@@ -27,7 +27,7 @@ func NewAuthorizer(opts ...Option) (engine.Authorizer, error) {
 	var err error
 
 	if auth.opts.model == nil {
-		auth.opts.model, err = model.NewModelFromString(DefaultRestfullWithRoleModel)
+		auth.opts.model, err = model.NewModelFromString(DefaultRBACModel)
 		if err != nil {
 			return nil, err
 		}
@@ -51,16 +51,20 @@ func (a *authorizer) IsAuthorized(ctx context.Context) error {
 	if len(claims.GetSubject()) == 0 || len(claims.GetResource()) == 0 || len(claims.GetAction()) == 0 {
 		return ErrInvalidClaims
 	}
-	project := claims.GetProject()
-	if len(project) == 0 {
-		project = a.wildcardItem
+	var (
+		allowed bool
+		err     error
+	)
+	if len(claims.GetProject()) > 0 {
+		allowed, err = a.enforcer.Enforce(claims.GetSubject(), claims.GetResource(), claims.GetAction(), claims.GetProject())
+	} else {
+		allowed, err = a.enforcer.Enforce(claims.GetSubject(), claims.GetResource(), claims.GetAction())
 	}
-	allow, err := a.enforcer.Enforce(claims.GetSubject(), claims.GetResource(), claims.GetAction(), project)
 	if err != nil {
-		//fmt.Println(allow, err)
+		//fmt.Println(allowed, err)
 		return ErrUnauthorized
 	}
-	if !allow {
+	if !allowed {
 		return ErrUnauthorized
 	}
 	return nil
