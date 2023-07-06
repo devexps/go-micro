@@ -36,3 +36,13 @@ func Client(authenticator engine.Authenticator, opts ...Option) middleware.Middl
 		}
 	}
 }
+
+// NewContext injects the provided claims in to the parent context.
+func NewContext(ctx context.Context, claims engine.Claims) context.Context {
+	return engine.NewContext(ctx, claims)
+}
+
+// FromContext extracts the claims from the provided context (if any).
+func FromContext(ctx context.Context) (claims engine.Claims, ok bool) {
+	return engine.FromContext(ctx)
+}
