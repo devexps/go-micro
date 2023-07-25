@@ -17,8 +17,9 @@ const (
 	ptypesPackage  = protogen.GoImportPath("github.com/golang/protobuf/ptypes")
 	helperPackage  = protogen.GoImportPath("github.com/devexps/go-micro/cmd/protoc-gen-go-es/helper")
 	stringsPackage = protogen.GoImportPath("strings")
-	logPackage     = protogen.GoImportPath("fmt")
+	logPackage     = protogen.GoImportPath("github.com/devexps/go-micro/v2/log")
 	jsonPackage    = protogen.GoImportPath("encoding/json")
+	fmtPackage     = protogen.GoImportPath("fmt")
 	elasticAlias   = "elastic"
 	reflectAlias   = "reflect"
 	timeAlias      = "time"
@@ -26,8 +27,9 @@ const (
 	ptypesAlias    = "ptypes"
 	helperAlias    = "helper"
 	stringsAlias   = "strings"
-	logAlias       = "fmt"
+	logAlias       = "log"
 	jsonAlias      = "json"
+	fmtAlias       = "fmt"
 )
 
 var (
@@ -213,23 +215,29 @@ func generateBuildQuery(msg *protogen.Message, g *protogen.GeneratedFile) *build
 		if fv.GetMatchPhrasePrefix() != "" {
 			queryDesc.TagName = fv.GetMatchPhrasePrefix()
 			queryDesc.QueryType = MatchPhrasePrefix
+			addImport(g, fmtPackage, fmtAlias)
 			addImport(g, stringsPackage, stringsAlias)
 		} else if fv.GetMatchPhrasePrefixLeft() != "" {
 			queryDesc.TagName = fv.GetMatchPhrasePrefixLeft()
 			queryDesc.QueryType = MatchPhrasePrefixLeft
+			addImport(g, fmtPackage, fmtAlias)
 		} else if fv.GetMatchPhrasePrefixRight() != "" {
 			queryDesc.TagName = fv.GetMatchPhrasePrefixRight()
 			queryDesc.QueryType = MatchPhrasePrefixRight
+			addImport(g, fmtPackage, fmtAlias)
 		} else if fv.GetWildcard() != "" {
 			queryDesc.TagName = fv.GetWildcard()
 			queryDesc.QueryType = Wildcard
 			addImport(g, stringsPackage, stringsAlias)
+			addImport(g, fmtPackage, fmtAlias)
 		} else if fv.GetWildcardLeft() != "" {
 			queryDesc.TagName = fv.GetWildcardLeft()
 			queryDesc.QueryType = WildcardLeft
+			addImport(g, fmtPackage, fmtAlias)
 		} else if fv.GetWildcardRight() != "" {
 			queryDesc.TagName = fv.GetWildcardRight()
 			queryDesc.QueryType = WildcardRight
+			addImport(g, fmtPackage, fmtAlias)
 		} else if fv.GetTerms() != "" {
 			queryDesc.TagName = fv.GetTerms()
 			if isRepeated {
