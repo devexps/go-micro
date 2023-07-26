@@ -1,7 +1,7 @@
 {{$helperPkg := index .MapPackageName "helper"}}
 {{$elasticPkg := index .MapPackageName "elastic"}}
 {{$timePkg := index .MapPackageName "time"}}
-{{$logPkg := index .MapPackageName "fmt"}}
+{{$logPkg := index .MapPackageName "log"}}
 {{$stringsPkg := index .MapPackageName "strings"}}
 {{$ptypesPkg := index .MapPackageName "ptypes"}}
 {{- range .MessageDescriptions}}
@@ -164,13 +164,13 @@ func (this *{{.MessageName}}) BuildQuery(query *{{$elasticPkg}}BoolQuery) *{{$el
 				}
 				query = query.Filter(rangeQuery)
             } else {
-                {{$logPkg}}Println("Invalid range query ", k)
+                {{$logPkg}}Info("Invalid range query ", k)
             }
         }
     }
     source, _ := query.Source()
     a, _ := json.Marshal(source)
-    {{$logPkg}}Println("query = ", string(a))
+    {{$logPkg}}Info("query = ", string(a))
 
     return query
 }
