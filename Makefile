@@ -21,6 +21,7 @@ all:
 	@cd cmd/micro && go build && cd - &> /dev/null
 	@cd cmd/protoc-gen-go-http && go build && cd - &> /dev/null
 	@cd cmd/protoc-gen-go-errors && go build && cd - &> /dev/null
+	@cd cmd/protoc-gen-go-es && go build && cd - &> /dev/null
 
 .PHONY: install
 install: all
@@ -29,9 +30,10 @@ ifeq ($(user),root)
 	@cp ./cmd/micro/micro /usr/bin
 	@cp ./cmd/protoc-gen-go-errors/protoc-gen-go-errors /usr/bin
 	@cp ./cmd/protoc-gen-go-http/protoc-gen-go-http /usr/bin
+	@cp ./cmd/protoc-gen-go-http/protoc-gen-go-es /usr/bin
 else
 #!root, install for current user
-	$(shell cp ./cmd/micro/micro '$(BIN)';cp ./cmd/protoc-gen-go-errors/protoc-gen-go-errors '$(BIN)';cp ./cmd/protoc-gen-go-http/protoc-gen-go-http '$(BIN)';)
+	$(shell cp ./cmd/micro/micro '$(BIN)';cp ./cmd/protoc-gen-go-errors/protoc-gen-go-errors '$(BIN)';cp ./cmd/protoc-gen-go-http/protoc-gen-go-http '$(BIN)';cp ./cmd/protoc-gen-go-es/protoc-gen-go-es '$(BIN)')
 endif
 	@which protoc-gen-go &> /dev/null || go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.30.0
 	@which protoc-gen-go-grpc &> /dev/null || go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
@@ -43,6 +45,7 @@ uninstall:
 	$(shell for i in `which -a micro | grep -v '/usr/bin/micro' 2>/dev/null | sort | uniq`; do read -p "Press to remove $${i} (y/n): " REPLY; if [ $${REPLY} = "y" ]; then rm -f $${i}; fi; done)
 	$(shell for i in `which -a protoc-gen-go-http | grep -v '/usr/bin/protoc-gen-go-http' 2>/dev/null | sort | uniq`; do read -p "Press to remove $${i} (y/n): " REPLY; if [ $${REPLY} = "y" ]; then rm -f $${i}; fi; done)
 	$(shell for i in `which -a protoc-gen-go-errors | grep -v '/usr/bin/protoc-gen-go-errors' 2>/dev/null | sort | uniq`; do read -p "Press to remove $${i} (y/n): " REPLY; if [ $${REPLY} = "y" ]; then rm -f $${i}; fi; done)
+	$(shell for i in `which -a protoc-gen-go-es | grep -v '/usr/bin/protoc-gen-go-es' 2>/dev/null | sort | uniq`; do read -p "Press to remove $${i} (y/n): " REPLY; if [ $${REPLY} = "y" ]; then rm -f $${i}; fi; done)
 	$(shell for i in `which -a protoc-gen-go | grep -v '/usr/bin/protoc-gen-go' 2>/dev/null | sort | uniq`; do read -p "Press to remove $${i} (y/n): " REPLY; if [ $${REPLY} = "y" ]; then rm -f $${i}; fi; done)
 	$(shell for i in `which -a protoc-gen-go-grpc | grep -v '/usr/bin/protoc-gen-go-grpc' 2>/dev/null | sort | uniq`; do read -p "Press to remove $${i} (y/n): " REPLY; if [ $${REPLY} = "y" ]; then rm -f $${i}; fi; done)
 	$(shell for i in `which -a protoc-gen-validate | grep -v '/usr/bin/protoc-gen-validate' 2>/dev/null | sort | uniq`; do read -p "Press to remove $${i} (y/n): " REPLY; if [ $${REPLY} = "y" ]; then rm -f $${i}; fi; done)
@@ -53,6 +56,7 @@ proto:
 	@protoc --proto_path=./third_party --proto_path=. --go_out=paths=source_relative:. --go-grpc_out=paths=source_relative:. --go-http_out=paths=source_relative:. api/metadata/metadata.proto
 	@protoc --proto_path=. --go_out=paths=source_relative:. cmd/protoc-gen-go-errors/errors/errors.proto
 	@protoc --proto_path=. --go_out=paths=source_relative:. errors/errors.proto
+	@protoc --proto_path=. --go_out=paths=source_relative:. es/es.proto
 	@echo "generate proto finished"
 
 .PHONY: test
