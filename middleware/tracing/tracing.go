@@ -2,57 +2,32 @@ package tracing
 
 import (
 	"context"
-
 	"github.com/devexps/go-micro/v2/log"
-
-	"go.opentelemetry.io/otel/propagation"
-	"go.opentelemetry.io/otel/trace"
-
 	"github.com/devexps/go-micro/v2/middleware"
 	"github.com/devexps/go-micro/v2/transport"
+	"go.opentelemetry.io/otel/attribute"
+	semConv "go.opentelemetry.io/otel/semconv/v1.4.0"
+	"go.opentelemetry.io/otel/trace"
 )
 
-// Option is tracing option.
-type Option func(*options)
-
-type options struct {
-	tracerName     string
-	tracerProvider trace.TracerProvider
-	propagator     propagation.TextMapPropagator
-}
-
-// WithPropagator with tracer propagator.
-func WithPropagator(propagator propagation.TextMapPropagator) Option {
-	return func(opts *options) {
-		opts.propagator = propagator
-	}
-}
-
-// WithTracerProvider with tracer provider.
-// By default, it uses the global provider that is set by otel.SetTracerProvider(provider).
-func WithTracerProvider(provider trace.TracerProvider) Option {
-	return func(opts *options) {
-		opts.tracerProvider = provider
-	}
-}
-
-// WithTracerName with tracer name
-func WithTracerName(tracerName string) Option {
-	return func(opts *options) {
-		opts.tracerName = tracerName
-	}
-}
+const (
+	defaultServerSpanName = "go-micro-server"
+	defaultClientSpanName = "go-micro-client"
+)
 
 // Server returns a new server middleware for OpenTelemetry.
 func Server(opts ...Option) middleware.Middleware {
-	tracer := NewTracer(trace.SpanKindServer, opts...)
+	tracer := NewTracer(trace.SpanKindServer, defaultServerSpanName, opts...)
 	return func(handler middleware.Handler) middleware.Handler {
 		return func(ctx context.Context, req interface{}) (reply interface{}, err error) {
 			if tr, ok := transport.FromServerContext(ctx); ok {
 				var span trace.Span
-				ctx, span = tracer.Start(ctx, tr.Operation(), tr.RequestHeader())
+				attrs := []attribute.KeyValue{
+					semConv.MessagingOperationKey.String(tr.Operation()),
+				}
+				ctx, span = tracer.Start(ctx, tr.RequestHeader(), attrs...)
 				setServerSpan(ctx, span, req)
-				defer func() { tracer.End(ctx, span, reply, err) }()
+				defer func() { tracer.End(ctx, span, err) }()
 			}
 			return handler(ctx, req)
 		}
@@ -61,14 +36,17 @@ func Server(opts ...Option) middleware.Middleware {
 
 // Client returns a new client middleware for OpenTelemetry.
 func Client(opts ...Option) middleware.Middleware {
-	tracer := NewTracer(trace.SpanKindClient, opts...)
+	tracer := NewTracer(trace.SpanKindClient, defaultClientSpanName, opts...)
 	return func(handler middleware.Handler) middleware.Handler {
 		return func(ctx context.Context, req interface{}) (reply interface{}, err error) {
 			if tr, ok := transport.FromClientContext(ctx); ok {
 				var span trace.Span
-				ctx, span = tracer.Start(ctx, tr.Operation(), tr.RequestHeader())
+				attrs := []attribute.KeyValue{
+					semConv.MessagingOperationKey.String(tr.Operation()),
+				}
+				ctx, span = tracer.Start(ctx, tr.RequestHeader(), attrs...)
 				setClientSpan(ctx, span, req)
-				defer func() { tracer.End(ctx, span, reply, err) }()
+				defer func() { tracer.End(ctx, span, err) }()
 			}
 			return handler(ctx, req)
 		}
