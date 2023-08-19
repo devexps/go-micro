@@ -4,9 +4,8 @@ import (
 	"context"
 	"github.com/devexps/go-micro/v2/log"
 	"github.com/devexps/go-micro/v2/middleware"
+	"github.com/devexps/go-micro/v2/tracing"
 	"github.com/devexps/go-micro/v2/transport"
-	"go.opentelemetry.io/otel/attribute"
-	semConv "go.opentelemetry.io/otel/semconv/v1.4.0"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -16,16 +15,13 @@ const (
 )
 
 // Server returns a new server middleware for OpenTelemetry.
-func Server(opts ...Option) middleware.Middleware {
-	tracer := NewTracer(trace.SpanKindServer, defaultServerSpanName, opts...)
+func Server(opts ...tracing.Option) middleware.Middleware {
+	tracer := tracing.NewTracer(trace.SpanKindServer, defaultServerSpanName, opts...)
 	return func(handler middleware.Handler) middleware.Handler {
 		return func(ctx context.Context, req interface{}) (reply interface{}, err error) {
 			if tr, ok := transport.FromServerContext(ctx); ok {
 				var span trace.Span
-				attrs := []attribute.KeyValue{
-					semConv.MessagingOperationKey.String(tr.Operation()),
-				}
-				ctx, span = tracer.Start(ctx, tr.RequestHeader(), attrs...)
+				ctx, span = tracer.Start(ctx, tr.RequestHeader())
 				setServerSpan(ctx, span, req)
 				defer func() { tracer.End(ctx, span, err) }()
 			}
@@ -35,16 +31,13 @@ func Server(opts ...Option) middleware.Middleware {
 }
 
 // Client returns a new client middleware for OpenTelemetry.
-func Client(opts ...Option) middleware.Middleware {
-	tracer := NewTracer(trace.SpanKindClient, defaultClientSpanName, opts...)
+func Client(opts ...tracing.Option) middleware.Middleware {
+	tracer := tracing.NewTracer(trace.SpanKindClient, defaultClientSpanName, opts...)
 	return func(handler middleware.Handler) middleware.Handler {
 		return func(ctx context.Context, req interface{}) (reply interface{}, err error) {
 			if tr, ok := transport.FromClientContext(ctx); ok {
 				var span trace.Span
-				attrs := []attribute.KeyValue{
-					semConv.MessagingOperationKey.String(tr.Operation()),
-				}
-				ctx, span = tracer.Start(ctx, tr.RequestHeader(), attrs...)
+				ctx, span = tracer.Start(ctx, tr.RequestHeader())
 				setClientSpan(ctx, span, req)
 				defer func() { tracer.End(ctx, span, err) }()
 			}

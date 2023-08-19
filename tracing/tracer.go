@@ -22,7 +22,7 @@ type Tracer struct {
 // NewTracer create tracer instance
 func NewTracer(kind trace.SpanKind, spanName string, opts ...Option) *Tracer {
 	op := options{
-		propagator: propagation.NewCompositeTextMapPropagator(Metadata{}, propagation.Baggage{}, propagation.TraceContext{}),
+		propagator: propagation.NewCompositeTextMapPropagator(propagation.Baggage{}, propagation.TraceContext{}),
 		kind:       kind,
 		tracerName: defaultTracerName,
 		spanName:   spanName,
