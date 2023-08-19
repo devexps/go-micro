@@ -401,8 +401,8 @@ func (b *kafkaBroker) publishMultipleWriter(topic string, buf []byte, opts ...br
 		Topic: topic,
 		Value: buf,
 	}
-	processMessageHeaders(options, kMsg)
-	processMessageKeyAndOffset(options, kMsg)
+	processMessageHeaders(options, &kMsg)
+	processMessageKeyAndOffset(options, &kMsg)
 
 	var cached bool
 	b.Lock()
@@ -468,8 +468,8 @@ func (b *kafkaBroker) publishOneWriter(topic string, buf []byte, opts ...broker.
 		Topic: topic,
 		Value: buf,
 	}
-	processMessageHeaders(options, kMsg)
-	processMessageKeyAndOffset(options, kMsg)
+	processMessageHeaders(options, &kMsg)
+	processMessageKeyAndOffset(options, &kMsg)
 
 	var cached bool
 	b.Lock()
@@ -522,7 +522,7 @@ func (b *kafkaBroker) publishOneWriter(topic string, buf []byte, opts ...broker.
 	return err
 }
 
-func processMessageHeaders(options broker.PublishOptions, kMsg kafkaGo.Message) {
+func processMessageHeaders(options broker.PublishOptions, kMsg *kafkaGo.Message) {
 	if headers, ok := options.Context.Value(messageHeadersKey{}).(map[string]interface{}); ok {
 		for k, v := range headers {
 			header := kafkaGo.Header{Key: k}
@@ -544,7 +544,7 @@ func processMessageHeaders(options broker.PublishOptions, kMsg kafkaGo.Message) 
 	}
 }
 
-func processMessageKeyAndOffset(options broker.PublishOptions, kMsg kafkaGo.Message) {
+func processMessageKeyAndOffset(options broker.PublishOptions, kMsg *kafkaGo.Message) {
 	if value, ok := options.Context.Value(messageKeyKey{}).([]byte); ok {
 		kMsg.Key = value
 	}
