@@ -3,7 +3,6 @@ package tracing
 import (
 	"context"
 	"fmt"
-
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -22,7 +21,6 @@ type Tracer struct {
 // NewTracer create tracer instance
 func NewTracer(kind trace.SpanKind, spanName string, opts ...Option) *Tracer {
 	op := options{
-		propagator: propagation.NewCompositeTextMapPropagator(propagation.Baggage{}, propagation.TraceContext{}),
 		kind:       kind,
 		tracerName: defaultTracerName,
 		spanName:   spanName,
@@ -30,10 +28,12 @@ func NewTracer(kind trace.SpanKind, spanName string, opts ...Option) *Tracer {
 	for _, o := range opts {
 		o(&op)
 	}
-	if op.tracerProvider != nil {
-		otel.SetTracerProvider(op.tracerProvider)
+	if op.tracerProvider == nil {
+		op.tracerProvider = otel.GetTracerProvider()
 	}
-
+	if op.propagator == nil {
+		op.propagator = otel.GetTextMapPropagator()
+	}
 	switch kind {
 	case trace.SpanKindProducer, trace.SpanKindConsumer:
 		return &Tracer{tracer: otel.Tracer(op.tracerName), opt: &op}

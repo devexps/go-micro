@@ -421,7 +421,9 @@ func (b *kafkaBroker) publishMultipleWriter(topic string, buf []byte, opts ...br
 	span := b.startProducerSpan(options.Context, &kMsg)
 	defer b.finishProducerSpan(span, int32(kMsg.Partition), kMsg.Offset, err)
 
-	err = writer.WriteMessages(options.Context, kMsg)
+	writeMessageCtx := context.Background() // fix: context deadline exceeded
+
+	err = writer.WriteMessages(writeMessageCtx, kMsg)
 	if err != nil {
 		log.Errorf("WriteMessages error: %s", err.Error())
 		switch cached {
@@ -430,7 +432,7 @@ func (b *kafkaBroker) publishMultipleWriter(topic string, buf []byte, opts ...br
 			if errors.As(err, &kerr) {
 				if kerr.Temporary() && !kerr.Timeout() {
 					time.Sleep(200 * time.Millisecond)
-					err = writer.WriteMessages(options.Context, kMsg)
+					err = writer.WriteMessages(writeMessageCtx, kMsg)
 				}
 			}
 		case true:
@@ -445,7 +447,7 @@ func (b *kafkaBroker) publishMultipleWriter(topic string, buf []byte, opts ...br
 			writer = b.writer.CreateProducer(b.writerConfig, b.saslMechanism, b.opts.TLSConfig)
 			b.initPublishOption(writer, options)
 			for i := 0; i < b.retriesCount; i++ {
-				if err = writer.WriteMessages(options.Context, kMsg); err == nil {
+				if err = writer.WriteMessages(writeMessageCtx, kMsg); err == nil {
 					b.Lock()
 					b.writer.Writers[topic] = writer
 					b.Unlock()
