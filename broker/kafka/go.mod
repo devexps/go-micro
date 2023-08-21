@@ -1,4 +1,4 @@
-module github.com/devexps/go-micro/v2/broker/kafka
+module github.com/devexps/go-micro/broker/kafka/v2
 
 go 1.18
 

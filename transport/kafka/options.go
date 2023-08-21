@@ -1,8 +1,9 @@
 package kafka
 
 import (
+	"github.com/devexps/go-micro/broker/kafka/v2"
 	"github.com/devexps/go-micro/v2/broker"
-	"github.com/devexps/go-micro/v2/broker/kafka"
+
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
 )

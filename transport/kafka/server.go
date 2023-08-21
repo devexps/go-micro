@@ -2,13 +2,15 @@ package kafka
 
 import (
 	"context"
+	"net/url"
+	"sync"
+
+	"github.com/devexps/go-micro/broker/kafka/v2"
+
 	"github.com/devexps/go-micro/v2/broker"
-	"github.com/devexps/go-micro/v2/broker/kafka"
 	"github.com/devexps/go-micro/v2/log"
 	"github.com/devexps/go-micro/v2/transport"
 	"github.com/devexps/go-micro/v2/transport/utils"
-	"net/url"
-	"sync"
 )
 
 var (
