@@ -1,4 +1,4 @@
-module github.com/devexps/go-micro/v2/transport/kafka
+module github.com/devexps/go-micro/transport/kafka/v2
 
 go 1.18
 
