@@ -2,13 +2,10 @@ module github.com/devexps/go-micro/transport/kafka/v2
 
 go 1.18
 
-replace (
-	github.com/devexps/go-micro/broker/kafka/v2 => ../../broker/kafka/
-	github.com/devexps/go-micro/v2 => ../../
-)
+replace github.com/devexps/go-micro/v2 => ../../
 
 require (
-	github.com/devexps/go-micro/broker/kafka/v2 v2.0.0-00010101000000-000000000000
+	github.com/devexps/go-micro/broker/kafka/v2 v2.0.0-20230821111625-e154c96f19e4
 	github.com/devexps/go-micro/v2 v2.0.0-00010101000000-000000000000
 	github.com/segmentio/kafka-go v0.4.42
 	go.opentelemetry.io/otel v1.7.0
