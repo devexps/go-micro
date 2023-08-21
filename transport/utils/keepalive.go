@@ -4,11 +4,12 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"github.com/devexps/go-micro/v2/errors"
 	"math/rand"
 	"net"
 	"net/http"
 	"net/url"
+
+	"github.com/devexps/go-micro/v2/errors"
 )
 
 type KeepAliveService struct {

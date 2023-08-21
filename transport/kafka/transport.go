@@ -3,6 +3,7 @@ package kafka
 import (
 	"github.com/devexps/go-micro/v2/selector"
 	"github.com/devexps/go-micro/v2/transport"
+
 	KAFKA "github.com/segmentio/kafka-go"
 )
 
