@@ -5,9 +5,10 @@ import (
 	"time"
 )
 
+// EventLog holds all of previous events
 type EventLog []*Event
 
-// Add .
+// Add event to eventlog
 func (e *EventLog) Add(ev *Event) {
 	if !ev.hasContent() {
 		return
@@ -17,12 +18,12 @@ func (e *EventLog) Add(ev *Event) {
 	*e = append(*e, ev)
 }
 
-// Clear .
+// Clear events from eventlog
 func (e *EventLog) Clear() {
 	*e = nil
 }
 
-// Replay .
+// Replay events to a subscriber
 func (e *EventLog) Replay(s *Subscriber) {
 	for i := 0; i < len(*e); i++ {
 		id, _ := strconv.Atoi(string((*e)[i].ID))

@@ -57,6 +57,7 @@ type Server struct {
 	streamMgr *StreamManager
 }
 
+// NewServer will create a server and setup defaults
 func NewServer(opts ...ServerOption) *Server {
 	srv := &Server{
 		network:     "tcp",
@@ -82,12 +83,12 @@ func NewServer(opts ...ServerOption) *Server {
 	return srv
 }
 
-// Name .
+// Name of server
 func (s *Server) Name() string {
 	return string(KindSSE)
 }
 
-// Endpoint .
+// Endpoint return a real address to registry endpoint.
 func (s *Server) Endpoint() (*url.URL, error) {
 	addr := s.address
 
@@ -108,7 +109,7 @@ func (s *Server) Endpoint() (*url.URL, error) {
 	return endpoint, nil
 }
 
-// Start .
+// Start starts the HTTP server.
 func (s *Server) Start(ctx context.Context) error {
 	if s.err != nil {
 		return s.err
@@ -131,7 +132,7 @@ func (s *Server) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop .
+// Stop stops the HTTP server.
 func (s *Server) Stop(ctx context.Context) error {
 	s.streamMgr.Clean()
 
@@ -139,32 +140,35 @@ func (s *Server) Stop(ctx context.Context) error {
 	return s.Shutdown(ctx)
 }
 
-// Handle .
+// Handle registers a new route with a matcher for the URL path.
 func (s *Server) Handle(path string, h http.Handler) {
 	s.router.Handle(path, h)
 }
 
-// HandlePrefix .
+// HandlePrefix registers a new route with a matcher for the URL path prefix.
 func (s *Server) HandlePrefix(prefix string, h http.Handler) {
 	s.router.PathPrefix(prefix).Handler(h)
 }
 
-// HandleFunc .
+// HandleFunc registers a new route with a matcher for the URL path.
 func (s *Server) HandleFunc(path string, h http.HandlerFunc) {
 	s.router.HandleFunc(path, h)
 }
 
-// HandleHeader .
+// HandleHeader registers a new route with a matcher for request header values.
 func (s *Server) HandleHeader(key, val string, h http.HandlerFunc) {
 	s.router.Headers(key, val).Handler(h)
 }
 
-// HandleServeHTTP .
+// HandleServeHTTP registers a new route with a matcher for the URL path.
 func (s *Server) HandleServeHTTP(path string) {
 	s.router.HandleFunc(path, s.ServeHTTP)
 }
 
-// Publish .
+// Publish sends a message to every client in a streamID.
+// If the stream's buffer is full, it blocks until the message is sent out to
+// all subscribers (but not necessarily arrived the clients), or when the
+// stream is closed.
 func (s *Server) Publish(streamId StreamID, event *Event) {
 	stream := s.streamMgr.Get(streamId)
 	if stream == nil {
@@ -176,7 +180,10 @@ func (s *Server) Publish(streamId StreamID, event *Event) {
 	}
 }
 
-// TryPublish .
+// TryPublish is the same as Publish except that when the operation would cause
+// the call to be blocked, it simply drops the message and returns false.
+// Together with a small BufferSize, it can be useful when publishing the
+// latest message ASAP is more important than reliable delivery.
 func (s *Server) TryPublish(streamId StreamID, event *Event) bool {
 	stream := s.streamMgr.Get(streamId)
 	if stream == nil {
@@ -190,7 +197,7 @@ func (s *Server) TryPublish(streamId StreamID, event *Event) bool {
 	}
 }
 
-// PublishData .
+// PublishData will encode message and Publish it to every client in a streamID
 func (s *Server) PublishData(streamId StreamID, data MessagePayload) error {
 	event := &Event{}
 
@@ -204,7 +211,7 @@ func (s *Server) PublishData(streamId StreamID, data MessagePayload) error {
 	return nil
 }
 
-// CreateStream .
+// CreateStream will create a new stream and register it
 func (s *Server) CreateStream(streamId StreamID) *Stream {
 	stream := s.streamMgr.Get(streamId)
 	if stream != nil {

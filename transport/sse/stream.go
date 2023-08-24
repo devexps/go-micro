@@ -27,10 +27,12 @@ type Stream struct {
 	subscribers     []*Subscriber
 	subscriberCount int32
 
+	// Specifies the function to run when client subscribe or un-subscribe
 	onSubscribe   SubscriberFunction
 	onUnsubscribe SubscriberFunction
 }
 
+// newStream returns a new stream
 func newStream(id StreamID, buffSize int, replay, autoStream bool, onSubscribe, onUnsubscribe SubscriberFunction) *Stream {
 	return &Stream{
 		id:            id,
