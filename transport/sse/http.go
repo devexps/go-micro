@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// ServeHTTP .
+// ServeHTTP serves new connections with events for a given stream ...
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	flusher, err := w.(http.Flusher)
 	if !err {
@@ -17,6 +17,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	s.prepareHeaderForSSE(w)
 
+	// Get the StreamID from the URL
 	streamID := r.URL.Query().Get("stream")
 	if streamID == "" {
 		writeError(w, "Please specify a stream!", http.StatusInternalServerError)
@@ -39,6 +40,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	// Create the stream subscriber
 	sub := stream.addSubscriber(eventId, r.URL)
 
 	go func() {
@@ -54,10 +56,13 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	flusher.Flush()
 
+	// Push events to client
 	for ev := range sub.connection {
+		// If the data buffer is an empty string abort.
 		if len(ev.Data) == 0 && len(ev.Comment) == 0 {
 			break
 		}
+		// if the event has expired, don't send it
 		if s.eventTTL != 0 && time.Now().After(ev.timestamp.Add(s.eventTTL)) {
 			continue
 		}

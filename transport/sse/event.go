@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// Event holds all the event source fields
 type Event struct {
 	timestamp time.Time
 	ID        []byte

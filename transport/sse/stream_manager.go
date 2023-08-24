@@ -9,14 +9,14 @@ type StreamManager struct {
 	mtx     sync.RWMutex
 }
 
-// NewStreamManager .
+// NewStreamManager returns a new stream manager
 func NewStreamManager() *StreamManager {
 	return &StreamManager{
 		streams: make(StreamMap),
 	}
 }
 
-// Add .
+// Add puts a new stream if not existed
 func (s *StreamManager) Add(stream *Stream) {
 	if stream == nil {
 		return
@@ -30,13 +30,13 @@ func (s *StreamManager) Add(stream *Stream) {
 	s.streams[stream.StreamID()] = stream
 }
 
-// Exist .
+// Exist whether the streamID existed or not
 func (s *StreamManager) Exist(streamId StreamID) bool {
 	stream := s.Get(streamId)
 	return stream != nil
 }
 
-// Get .
+// Get returns an existed stream
 func (s *StreamManager) Get(streamId StreamID) *Stream {
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
@@ -45,7 +45,7 @@ func (s *StreamManager) Get(streamId StreamID) *Stream {
 	return c
 }
 
-// Range .
+// Range walks through list of streams
 func (s *StreamManager) Range(fn func(*Stream)) {
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
@@ -55,7 +55,7 @@ func (s *StreamManager) Range(fn func(*Stream)) {
 	}
 }
 
-// Count .
+// Count returns currently total number of streams
 func (s *StreamManager) Count() int {
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
@@ -63,7 +63,7 @@ func (s *StreamManager) Count() int {
 	return len(s.streams)
 }
 
-// Remove .
+// Remove deletes a stream
 func (s *StreamManager) Remove(stream *Stream) {
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
@@ -78,7 +78,7 @@ func (s *StreamManager) Remove(stream *Stream) {
 	}
 }
 
-// RemoveWithID .
+// RemoveWithID deletes a stream by streamID
 func (s *StreamManager) RemoveWithID(streamId StreamID) {
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
@@ -89,7 +89,7 @@ func (s *StreamManager) RemoveWithID(streamId StreamID) {
 	}
 }
 
-// Clean .
+// Clean removes all
 func (s *StreamManager) Clean() {
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
