@@ -2,9 +2,11 @@ package jwt
 
 import (
 	"bytes"
-	"github.com/devexps/go-micro/v2/middleware/authn/engine"
-	"github.com/golang-jwt/jwt/v4"
 	"strings"
+
+	"github.com/devexps/go-micro/v2/middleware/authn/engine"
+
+	"github.com/golang-jwt/jwt/v4"
 )
 
 // ScopeSet see: https://datatracker.ietf.org/doc/html/rfc6749#section-3.3

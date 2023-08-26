@@ -2,6 +2,7 @@ package casbin
 
 import (
 	_ "embed"
+
 	"github.com/casbin/casbin/v2/model"
 	"github.com/casbin/casbin/v2/persist"
 )

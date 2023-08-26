@@ -2,8 +2,9 @@ package sse
 
 import (
 	"context"
-	"github.com/devexps/go-micro/v2/transport"
 	"net/http"
+
+	"github.com/devexps/go-micro/v2/transport"
 )
 
 const (

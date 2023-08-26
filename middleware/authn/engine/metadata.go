@@ -3,11 +3,13 @@ package engine
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/devexps/go-micro/v2/errors"
 	"github.com/devexps/go-micro/v2/log"
 	"github.com/devexps/go-micro/v2/transport"
+
 	"github.com/grpc-ecosystem/go-grpc-middleware/util/metautils"
-	"strings"
 )
 
 // AuthFromMD .

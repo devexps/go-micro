@@ -2,6 +2,7 @@ package authn
 
 import (
 	"context"
+
 	"github.com/devexps/go-micro/v2/log"
 	"github.com/devexps/go-micro/v2/middleware"
 	"github.com/devexps/go-micro/v2/middleware/authn/engine"

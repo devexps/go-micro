@@ -2,6 +2,7 @@ package authz
 
 import (
 	"context"
+
 	"github.com/devexps/go-micro/v2/middleware"
 	"github.com/devexps/go-micro/v2/middleware/authz/engine"
 )

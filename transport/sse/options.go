@@ -2,9 +2,10 @@ package sse
 
 import (
 	"crypto/tls"
-	"github.com/devexps/go-micro/v2/encoding"
 	"net"
 	"time"
+
+	"github.com/devexps/go-micro/v2/encoding"
 )
 
 const DefaultBufferSize = 1024
