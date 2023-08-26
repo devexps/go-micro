@@ -2,7 +2,9 @@ package jwt
 
 import (
 	"context"
+
 	"github.com/devexps/go-micro/v2/middleware/authn/engine"
+
 	jwtSdk "github.com/golang-jwt/jwt/v4"
 )
 

@@ -3,17 +3,19 @@ package sse
 import (
 	"context"
 	"crypto/tls"
-	"github.com/devexps/go-micro/v2/broker"
-	"github.com/devexps/go-micro/v2/encoding"
-	"github.com/devexps/go-micro/v2/errors"
-	"github.com/devexps/go-micro/v2/log"
-	"github.com/devexps/go-micro/v2/transport"
-	"github.com/gorilla/mux"
 	"net"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/gorilla/mux"
+
+	"github.com/devexps/go-micro/v2/broker"
+	"github.com/devexps/go-micro/v2/encoding"
+	"github.com/devexps/go-micro/v2/errors"
+	"github.com/devexps/go-micro/v2/log"
+	"github.com/devexps/go-micro/v2/transport"
 )
 
 type Any interface{}

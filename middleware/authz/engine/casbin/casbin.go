@@ -2,8 +2,10 @@ package casbin
 
 import (
 	"context"
+
 	stdCasbin "github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/model"
+
 	"github.com/devexps/go-micro/v2/middleware/authz/engine"
 )
 

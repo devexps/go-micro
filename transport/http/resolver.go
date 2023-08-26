@@ -9,8 +9,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/devexps/go-micro/v2/internal/aegis/subset"
 	"github.com/devexps/go-micro/v2/internal/endpoint"
+	"github.com/devexps/go-micro/v2/internal/subset"
 	"github.com/devexps/go-micro/v2/log"
 	"github.com/devexps/go-micro/v2/registry"
 	"github.com/devexps/go-micro/v2/selector"
