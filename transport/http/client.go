@@ -9,10 +9,11 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/devexps/go-pkg/v2/host"
+	"github.com/devexps/go-pkg/v2/httputil"
+
 	"github.com/devexps/go-micro/v2/encoding"
 	"github.com/devexps/go-micro/v2/errors"
-	"github.com/devexps/go-micro/v2/internal/host"
-	"github.com/devexps/go-micro/v2/internal/httputil"
 	"github.com/devexps/go-micro/v2/middleware"
 	"github.com/devexps/go-micro/v2/registry"
 	"github.com/devexps/go-micro/v2/selector"

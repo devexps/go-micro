@@ -3,10 +3,12 @@ package circuitbreaker
 import (
 	"context"
 	"errors"
-	goMicroError "github.com/devexps/go-micro/v2/errors"
-	"github.com/devexps/go-micro/v2/middleware/circuitbreaker/breaker"
-	"github.com/devexps/go-micro/v2/transport"
 	"testing"
+
+	goMicroError "github.com/devexps/go-micro/v2/errors"
+	"github.com/devexps/go-micro/v2/transport"
+
+	"github.com/devexps/go-pkg/v2/circuitbreaker"
 )
 
 type circuitBreakerMock struct {
@@ -43,7 +45,7 @@ func TestServer(_ *testing.T) {
 
 	ctx := transport.NewClientContext(context.Background(), &transportMock{})
 
-	_, _ = Client(WithCircuitBreaker(func() breaker.CircuitBreaker {
+	_, _ = Client(WithCircuitBreaker(func() circuitbreaker.CircuitBreaker {
 		return &circuitBreakerMock{err: errors.New("circuitbreaker error")}
 	}))(nextValid)(ctx, nil)
 

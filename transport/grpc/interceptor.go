@@ -6,7 +6,8 @@ import (
 	"google.golang.org/grpc"
 	grpcmd "google.golang.org/grpc/metadata"
 
-	ic "github.com/devexps/go-micro/v2/internal/context"
+	ic "github.com/devexps/go-pkg/v2/context"
+
 	"github.com/devexps/go-micro/v2/middleware"
 	"github.com/devexps/go-micro/v2/transport"
 )

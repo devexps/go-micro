@@ -9,9 +9,10 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/devexps/go-pkg/v2/httputil"
+
 	"github.com/devexps/go-micro/v2/encoding"
 	"github.com/devexps/go-micro/v2/errors"
-	"github.com/devexps/go-micro/v2/internal/httputil"
 	"github.com/devexps/go-micro/v2/transport/http/binding"
 )
 
