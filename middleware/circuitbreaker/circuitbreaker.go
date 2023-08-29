@@ -3,11 +3,12 @@ package circuitbreaker
 import (
 	"context"
 
+	"github.com/devexps/go-pkg/v2/circuitbreaker"
+	"github.com/devexps/go-pkg/v2/circuitbreaker/cooh"
+	"github.com/devexps/go-pkg/v2/group"
+
 	"github.com/devexps/go-micro/v2/errors"
-	"github.com/devexps/go-micro/v2/internal/group"
 	"github.com/devexps/go-micro/v2/middleware"
-	"github.com/devexps/go-micro/v2/middleware/circuitbreaker/breaker"
-	"github.com/devexps/go-micro/v2/middleware/circuitbreaker/breaker/sre"
 	"github.com/devexps/go-micro/v2/transport"
 )
 
@@ -18,7 +19,7 @@ var ErrNotAllowed = errors.New(503, "CIRCUITBREAKER", "request failed due to cir
 type Option func(*options)
 
 // WithCircuitBreaker with circuit breaker genFunc.
-func WithCircuitBreaker(genBreakerFunc func() breaker.CircuitBreaker) Option {
+func WithCircuitBreaker(genBreakerFunc func() circuitbreaker.CircuitBreaker) Option {
 	return func(o *options) {
 		o.group = group.NewGroup(func() interface{} {
 			return genBreakerFunc()
@@ -30,11 +31,12 @@ type options struct {
 	group *group.Group
 }
 
-// Client will return errBreakerTriggered when the circuit breaker is triggered and the request is rejected directly.
+// Client will return errBreakerTriggered when the circuit breaker
+// is triggered and the request is rejected directly.
 func Client(opts ...Option) middleware.Middleware {
 	opt := &options{
 		group: group.NewGroup(func() interface{} {
-			return sre.NewBreaker()
+			return cooh.NewBreaker()
 		}),
 	}
 	for _, o := range opts {
@@ -43,7 +45,7 @@ func Client(opts ...Option) middleware.Middleware {
 	return func(handler middleware.Handler) middleware.Handler {
 		return func(ctx context.Context, req interface{}) (interface{}, error) {
 			info, _ := transport.FromClientContext(ctx)
-			breaker := opt.group.Get(info.Operation()).(breaker.CircuitBreaker)
+			breaker := opt.group.Get(info.Operation()).(circuitbreaker.CircuitBreaker)
 			if err := breaker.Allow(); err != nil {
 				// rejected
 				// NOTE: when client reject requests locally,

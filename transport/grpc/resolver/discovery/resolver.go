@@ -9,8 +9,9 @@ import (
 	"google.golang.org/grpc/attributes"
 	"google.golang.org/grpc/resolver"
 
-	"github.com/devexps/go-micro/v2/internal/endpoint"
-	"github.com/devexps/go-micro/v2/internal/subset"
+	"github.com/devexps/go-pkg/v2/endpoint"
+	"github.com/devexps/go-pkg/v2/subset"
+
 	"github.com/devexps/go-micro/v2/log"
 	"github.com/devexps/go-micro/v2/registry"
 )

@@ -14,9 +14,10 @@ import (
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 
+	"github.com/devexps/go-pkg/v2/endpoint"
+	"github.com/devexps/go-pkg/v2/host"
+
 	apimd "github.com/devexps/go-micro/v2/api/metadata"
-	"github.com/devexps/go-micro/v2/internal/endpoint"
-	"github.com/devexps/go-micro/v2/internal/host"
 	"github.com/devexps/go-micro/v2/internal/matcher"
 	"github.com/devexps/go-micro/v2/log"
 	"github.com/devexps/go-micro/v2/middleware"
