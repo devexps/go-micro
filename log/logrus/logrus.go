@@ -12,12 +12,14 @@ type Logger struct {
 	log *logrus.Logger
 }
 
+// NewLogger creates a logrus logger
 func NewLogger(logger *logrus.Logger) log.Logger {
 	return &Logger{
 		log: logger,
 	}
 }
 
+// Log print the kv pairs log.
 func (l *Logger) Log(level log.Level, keyvals ...interface{}) (err error) {
 	var (
 		logrusLevel logrus.Level
