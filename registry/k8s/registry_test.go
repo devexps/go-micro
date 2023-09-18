@@ -2,7 +2,11 @@ package k8s
 
 import (
 	"context"
-	"github.com/devexps/go-micro/v2/registry"
+	"os"
+	"path/filepath"
+	"testing"
+	"time"
+
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -10,10 +14,8 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
-	"os"
-	"path/filepath"
-	"testing"
-	"time"
+
+	"github.com/devexps/go-micro/v2/registry"
 )
 
 const (
@@ -69,8 +71,8 @@ func getClientSet() (*kubernetes.Clientset, error) {
 	restConfig, err := rest.InClusterConfig()
 
 	if err != nil {
-		kubeconfig := filepath.Join(homedir.HomeDir(), ".kube", "config")
-		restConfig, err = clientcmd.BuildConfigFromFlags("", kubeconfig)
+		kubeConfig := filepath.Join(homedir.HomeDir(), ".kube", "config")
+		restConfig, err = clientcmd.BuildConfigFromFlags("", kubeConfig)
 		if err != nil {
 			return nil, err
 		}
@@ -99,7 +101,7 @@ func TestRegistry(t *testing.T) {
 		Version:   "v1.0.0",
 		Endpoints: []string{"http://127.0.0.1:8080"},
 	}
-	
+
 	_, err = clientSet.AppsV1().Deployments(namespace).Create(context.Background(), &deployment, metav1.CreateOptions{})
 	if err != nil {
 		t.Fatal(err)
@@ -140,7 +142,7 @@ func TestRegistry(t *testing.T) {
 
 	os.Setenv("HOSTNAME", pod.Items[0].Name)
 
-	// Alway remember delete test resource
+	// Always remember delete test resource
 	defer func() {
 		_ = clientSet.AppsV1().Deployments(namespace).Delete(context.Background(), deployName, metav1.DeleteOptions{})
 	}()
