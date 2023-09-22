@@ -75,7 +75,7 @@ type RangeTmstampSearch struct {
 
 // AddFrom ...
 func (r *MapRangeSearch) AddFrom(name string, vv interface{}, lower bool) bool {
-	tm, ok := convertToTime(vv)
+	tm, ok := convertToTime(vv, false)
 	if !ok {
 		return false
 	}
@@ -91,7 +91,7 @@ func (r *MapRangeSearch) AddFrom(name string, vv interface{}, lower bool) bool {
 // AddTo ...
 func (r *MapRangeSearch) AddTo(name string, vv interface{}, upper bool) bool {
 
-	tm, ok := convertToTime(vv)
+	tm, ok := convertToTime(vv, true)
 	if !ok {
 		return false
 	}
@@ -135,21 +135,33 @@ func CheckTimestampType(field interface{}) (*timestamp.Timestamp, bool) {
 	return nil, false
 }
 
+// CheckDateType ...
+func CheckDateType(field interface{}) (*google_proto.Date, bool) {
+	if date, ok := field.(*google_proto.Date); ok {
+		return date, true
+	}
+	return nil, false
+}
+
 // GetTypeName ...
 func GetTypeName(name string) string {
 	typeNames := strings.Split(name, ".")
 	return typeNames[len(typeNames)-1]
 }
 
-func convertToTime(vv interface{}) (time.Time, bool) {
+func convertToTime(vv interface{}, toNextDate bool) (time.Time, bool) {
 	var (
 		tm  time.Time
 		err error
 	)
-	if from, ok := vv.(*timestamp.Timestamp); ok {
-		tm, err = ptypes.Timestamp(from)
+	if ts, ok := vv.(*timestamp.Timestamp); ok {
+		tm, err = ptypes.Timestamp(ts)
 	} else if from, ok := vv.(*google_proto.Date); ok {
-		tm = from.AsTime()
+		if toNextDate {
+			tm = from.GetNextDate()
+		} else {
+			tm = from.AsTime()
+		}
 	} else {
 		return time.Time{}, false
 	}

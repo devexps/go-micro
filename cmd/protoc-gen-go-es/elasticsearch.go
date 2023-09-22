@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	esProto "github.com/devexps/go-micro/cmd/protoc-gen-go-es/es"
+	esProto "github.com/devexps/go-micro/v2/elastic/es"
+	dayProto "github.com/devexps/go-micro/v2/elastic/type"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
@@ -11,25 +12,25 @@ import (
 )
 
 const (
-	elasticPackage = protogen.GoImportPath("gopkg.in/olivere/elastic.v6")
-	reflectPackage = protogen.GoImportPath("reflect")
-	timePackage    = protogen.GoImportPath("time")
-	ptypesPackage  = protogen.GoImportPath("github.com/golang/protobuf/ptypes")
-	helperPackage  = protogen.GoImportPath("github.com/devexps/go-micro/cmd/protoc-gen-go-es/helper")
-	stringsPackage = protogen.GoImportPath("strings")
-	logPackage     = protogen.GoImportPath("github.com/devexps/go-micro/v2/log")
-	jsonPackage    = protogen.GoImportPath("encoding/json")
-	fmtPackage     = protogen.GoImportPath("fmt")
-	elasticAlias   = "elastic"
-	reflectAlias   = "reflect"
-	timeAlias      = "time"
-	timestampAlias = "timestamp"
-	ptypesAlias    = "ptypes"
-	helperAlias    = "helper"
-	stringsAlias   = "strings"
-	logAlias       = "log"
-	jsonAlias      = "json"
-	fmtAlias       = "fmt"
+	elasticPackage       = protogen.GoImportPath("gopkg.in/olivere/elastic.v6")
+	reflectPackage       = protogen.GoImportPath("reflect")
+	timePackage          = protogen.GoImportPath("time")
+	ptypesPackage        = protogen.GoImportPath("github.com/golang/protobuf/ptypes")
+	elasticHelperPackage = protogen.GoImportPath("github.com/devexps/go-micro/elastic")
+	stringsPackage       = protogen.GoImportPath("strings")
+	logPackage           = protogen.GoImportPath("github.com/devexps/go-micro/v2/log")
+	jsonPackage          = protogen.GoImportPath("encoding/json")
+	fmtPackage           = protogen.GoImportPath("fmt")
+	elasticAlias         = "elastic"
+	reflectAlias         = "reflect"
+	timeAlias            = "time"
+	timestampAlias       = "timestamp"
+	ptypesAlias          = "ptypes"
+	elasticHelperAlias   = "elasticHelper"
+	stringsAlias         = "strings"
+	logAlias             = "log"
+	jsonAlias            = "json"
+	fmtAlias             = "fmt"
 )
 
 var (
@@ -147,14 +148,14 @@ func generateEsMapping(msg *protogen.Message, g *protogen.GeneratedFile) *esMapp
 		if field.Message != nil {
 			if isRepeated {
 				fieldDesc.EsType = RepeatedMessage
-				addImport(g, helperPackage, helperAlias)
+				addImport(g, elasticHelperPackage, elasticHelperAlias)
 			} else {
 				//timestamp
-				if isTimestampType(field) {
+				if isTimestampType(field) || isDateType(field) {
 					fieldDesc.EsType = Date
 				} else {
 					fieldDesc.EsType = Message
-					addImport(g, helperPackage, helperAlias)
+					addImport(g, elasticHelperPackage, elasticHelperAlias)
 				}
 			}
 		} else if field.Enum != nil || isRepeated {
@@ -290,7 +291,7 @@ func generateBuildQuery(msg *protogen.Message, g *protogen.GeneratedFile) *build
 	}
 
 	buildQuery.QueryDescriptions = queryDescriptions
-	addImport(g, helperPackage, helperAlias)
+	addImport(g, elasticHelperPackage, elasticHelperAlias)
 	addImport(g, logPackage, logAlias)
 	addImport(g, elasticPackage, elasticAlias)
 	addImport(g, jsonPackage, jsonAlias)
@@ -319,6 +320,8 @@ func generateGetEsMap(msg *protogen.Message, g *protogen.GeneratedFile) *getEsMa
 					getEsMapDesc.EsMapType = Timestamp
 					addImport(g, ptypesPackage, ptypesAlias)
 					addImport(g, timePackage, timeAlias)
+				} else if isDateType(field) {
+					getEsMapDesc.EsMapType = EsMapTypeDate
 				} else if field.Desc.Cardinality() == protoreflect.Repeated {
 					getEsMapDesc.EsMapType = RepeatedStruct
 				} else {
@@ -347,7 +350,7 @@ func generateGetEsMap(msg *protogen.Message, g *protogen.GeneratedFile) *getEsMa
 		return nil
 	}
 	getEsMap.GetEsMapDescriptions = getEsMapDescs
-	addImport(g, helperPackage, helperAlias)
+	addImport(g, elasticHelperPackage, elasticHelperAlias)
 	return getEsMap
 }
 
@@ -385,6 +388,14 @@ func isTimestampType(field *protogen.Field) bool {
 	timestamp := &timestamppb.Timestamp{}
 	//timestamp
 	if field.Desc.Message().FullName() == timestamp.ProtoReflect().Descriptor().FullName() {
+		return true
+	}
+	return false
+}
+
+func isDateType(field *protogen.Field) bool {
+	date := &dayProto.Date{}
+	if field.Desc.Message().FullName() == date.ProtoReflect().Descriptor().FullName() {
 		return true
 	}
 	return false

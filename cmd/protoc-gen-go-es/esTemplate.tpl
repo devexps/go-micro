@@ -211,6 +211,15 @@ func (this *{{.MessageName}}) GetEsMap(esMap *map[string]interface{}) {
     if !{{$helperPkg}}{{.CheckNilFunc}}({{.VariableName}}) {
         (*esMap)["{{.TagName}}"] = {{.VariableName}}
     }
+        {{- else if eq .EsMapType 5}}
+    if !{{$helperPkg}}IsNil({{.VariableName}}){
+        if date, ok := {{$helperPkg}}CheckDateType({{.VariableName}}); ok {
+            if date != nil {
+                tm := {{.VariableName}}.AsTime()
+                (*esMap)["{{.TagName}}"] = tm.UnixNano() / int64({{$timePkg}}Millisecond)
+            }
+        }
+    }
         {{- end}}
     {{- end}}
 }
