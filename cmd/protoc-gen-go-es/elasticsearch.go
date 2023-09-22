@@ -16,7 +16,7 @@ const (
 	reflectPackage       = protogen.GoImportPath("reflect")
 	timePackage          = protogen.GoImportPath("time")
 	ptypesPackage        = protogen.GoImportPath("github.com/golang/protobuf/ptypes")
-	elasticHelperPackage = protogen.GoImportPath("github.com/devexps/go-micro/elastic")
+	elasticHelperPackage = protogen.GoImportPath("github.com/devexps/go-micro/elastic/v2")
 	stringsPackage       = protogen.GoImportPath("strings")
 	logPackage           = protogen.GoImportPath("github.com/devexps/go-micro/v2/log")
 	jsonPackage          = protogen.GoImportPath("encoding/json")
