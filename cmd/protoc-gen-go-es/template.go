@@ -58,6 +58,7 @@ const (
 	RepeatedStruct EsMapType = 2
 	Timestamp      EsMapType = 3
 	SimpleType     EsMapType = 4
+	EsMapTypeDate  EsMapType = 5
 )
 
 type FieldDescription struct {
