@@ -12,7 +12,7 @@ var showVersion = flag.Bool("version", false, "print the version and exit")
 func main() {
 	flag.Parse()
 	if *showVersion {
-		fmt.Printf("protoc-gen-go-errors %v\n", release)
+		fmt.Printf("protoc-gen-go-es %v\n", release)
 		return
 	}
 	var flags flag.FlagSet

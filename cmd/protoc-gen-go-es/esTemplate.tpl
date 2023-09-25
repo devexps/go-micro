@@ -1,4 +1,4 @@
-{{$helperPkg := index .MapPackageName "helper"}}
+{{$helperPkg := index .MapPackageName "elasticHelper"}}
 {{$elasticPkg := index .MapPackageName "elastic"}}
 {{$timePkg := index .MapPackageName "time"}}
 {{$logPkg := index .MapPackageName "log"}}
