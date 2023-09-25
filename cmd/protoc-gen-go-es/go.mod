@@ -7,10 +7,4 @@ require (
 	google.golang.org/protobuf v1.31.0
 )
 
-require (
-	github.com/go-playground/form/v4 v4.2.0 // indirect
-	github.com/golang/protobuf v1.5.3 // indirect
-	github.com/google/uuid v1.3.0 // indirect
-	golang.org/x/sync v0.0.0-20220513210516-0976fa681c29 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
-)
+require github.com/golang/protobuf v1.5.2 // indirect
