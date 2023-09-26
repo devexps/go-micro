@@ -1,7 +1,8 @@
-package helper
+package elastic
 
 import (
 	"fmt"
+	google_proto "github.com/devexps/go-micro/v2/elastic/type"
 	"reflect"
 	"strings"
 	"time"
@@ -74,36 +75,32 @@ type RangeTmstampSearch struct {
 
 // AddFrom ...
 func (r *MapRangeSearch) AddFrom(name string, vv interface{}, lower bool) bool {
-	if from, ok := vv.(*timestamp.Timestamp); ok {
-		tm, err := ptypes.Timestamp(from)
-		if err != nil {
-			return false
-		}
-		if q, ok := r.MapRangeTmStampSearch[name]; ok {
-			q.From = tm.UnixNano() / int64(time.Millisecond)
-		} else {
-			r.MapRangeTmStampSearch[name] = &RangeTmstampSearch{From: tm.UnixNano() / int64(time.Millisecond), Lower: lower} //tm.UnixNano() / int64(`, c.getPacketName(c.timePkg), `.Millisecond)`)
-		}
-		return true
+	tm, ok := convertToTime(vv, false)
+	if !ok {
+		return false
 	}
-	return false
+
+	if q, ok := r.MapRangeTmStampSearch[name]; ok {
+		q.From = tm.UnixNano() / int64(time.Millisecond)
+	} else {
+		r.MapRangeTmStampSearch[name] = &RangeTmstampSearch{From: tm.UnixNano() / int64(time.Millisecond), Lower: lower}
+	}
+	return true
 }
 
 // AddTo ...
 func (r *MapRangeSearch) AddTo(name string, vv interface{}, upper bool) bool {
-	if to, ok := vv.(*timestamp.Timestamp); ok {
-		tm, err := ptypes.Timestamp(to)
-		if err != nil {
-			return false
-		}
-		if q, ok := r.MapRangeTmStampSearch[name]; ok {
-			q.To = tm.UnixNano() / int64(time.Millisecond)
-		} else {
-			r.MapRangeTmStampSearch[name] = &RangeTmstampSearch{To: tm.UnixNano() / int64(time.Millisecond), Upper: upper} //tm.UnixNano() / int64(`, c.getPacketName(c.timePkg), `.Millisecond)`)
-		}
-		return true
+
+	tm, ok := convertToTime(vv, true)
+	if !ok {
+		return false
 	}
-	return false
+	if q, ok := r.MapRangeTmStampSearch[name]; ok {
+		q.To = tm.UnixNano() / int64(time.Millisecond)
+	} else {
+		r.MapRangeTmStampSearch[name] = &RangeTmstampSearch{To: tm.UnixNano() / int64(time.Millisecond), Upper: upper} //tm.UnixNano() / int64(`, c.getPacketName(c.timePkg), `.Millisecond)`)
+	}
+	return true
 }
 
 // MakeKeyEsMap ...
@@ -138,8 +135,39 @@ func CheckTimestampType(field interface{}) (*timestamp.Timestamp, bool) {
 	return nil, false
 }
 
+// CheckDateType ...
+func CheckDateType(field interface{}) (*google_proto.Date, bool) {
+	if date, ok := field.(*google_proto.Date); ok {
+		return date, true
+	}
+	return nil, false
+}
+
 // GetTypeName ...
 func GetTypeName(name string) string {
 	typeNames := strings.Split(name, ".")
 	return typeNames[len(typeNames)-1]
+}
+
+func convertToTime(vv interface{}, toNextDate bool) (time.Time, bool) {
+	var (
+		tm  time.Time
+		err error
+	)
+	if ts, ok := vv.(*timestamp.Timestamp); ok {
+		tm, err = ptypes.Timestamp(ts)
+	} else if from, ok := vv.(*google_proto.Date); ok {
+		if toNextDate {
+			tm = from.GetNextDate()
+		} else {
+			tm = from.AsTime()
+		}
+	} else {
+		return time.Time{}, false
+	}
+
+	if err != nil {
+		return time.Time{}, false
+	}
+	return tm, true
 }

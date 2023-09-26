@@ -4,7 +4,7 @@ package es_proto;
 
 import "google/protobuf/descriptor.proto";
 
-option go_package = "es.proto";
+option go_package = "github.com/devexps/go-micro/v2/elastic/es;es";
 
 extend google.protobuf.FieldOptions {
      FieldEs        es               = 66664;

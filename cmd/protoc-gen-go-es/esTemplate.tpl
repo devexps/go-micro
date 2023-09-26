@@ -1,4 +1,4 @@
-{{$helperPkg := index .MapPackageName "helper"}}
+{{$helperPkg := index .MapPackageName "elasticHelper"}}
 {{$elasticPkg := index .MapPackageName "elastic"}}
 {{$timePkg := index .MapPackageName "time"}}
 {{$logPkg := index .MapPackageName "log"}}
@@ -210,6 +210,15 @@ func (this *{{.MessageName}}) GetEsMap(esMap *map[string]interface{}) {
         {{- else if eq .EsMapType 4}}
     if !{{$helperPkg}}{{.CheckNilFunc}}({{.VariableName}}) {
         (*esMap)["{{.TagName}}"] = {{.VariableName}}
+    }
+        {{- else if eq .EsMapType 5}}
+    if !{{$helperPkg}}IsNil({{.VariableName}}){
+        if date, ok := {{$helperPkg}}CheckDateType({{.VariableName}}); ok {
+            if date != nil {
+                tm := {{.VariableName}}.AsTime()
+                (*esMap)["{{.TagName}}"] = tm.UnixNano() / int64({{$timePkg}}Millisecond)
+            }
+        }
     }
         {{- end}}
     {{- end}}
