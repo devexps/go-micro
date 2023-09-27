@@ -322,6 +322,7 @@ func generateGetEsMap(msg *protogen.Message, g *protogen.GeneratedFile) *getEsMa
 					addImport(g, timePackage, timeAlias)
 				} else if isDateType(field) {
 					getEsMapDesc.EsMapType = EsMapTypeDate
+					addImport(g, timePackage, timeAlias)
 				} else if field.Desc.Cardinality() == protoreflect.Repeated {
 					getEsMapDesc.EsMapType = RepeatedStruct
 				} else {
