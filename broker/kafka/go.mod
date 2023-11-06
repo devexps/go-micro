@@ -5,7 +5,7 @@ go 1.18
 replace github.com/devexps/go-micro/v2 => ../../
 
 require (
-	github.com/devexps/go-micro/v2 v2.0.0-20230823132135-27ba0739d0d2
+	github.com/devexps/go-micro/v2 v2.0.0
 	github.com/google/uuid v1.3.0
 	github.com/segmentio/kafka-go v0.4.42
 	go.opentelemetry.io/otel v1.7.0
