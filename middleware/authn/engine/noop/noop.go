@@ -11,6 +11,11 @@ type authenticator struct {
 
 var _ engine.Authenticator = (*authenticator)(nil)
 
+// NewAuthenticator .
+func NewAuthenticator() engine.Authenticator {
+	return &authenticator{}
+}
+
 // Authenticate .
 func (a authenticator) Authenticate(ctx context.Context, ctxType engine.ContextType) (engine.Claims, error) {
 	return &Claims{}, nil
