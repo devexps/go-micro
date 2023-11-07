@@ -37,14 +37,25 @@ func (a *authenticator) Authenticate(ctx context.Context, ctxType engine.Context
 	return a.authenticate(tokenString)
 }
 
-// CreateIdentity .
-func (a *authenticator) CreateIdentity(ctx context.Context, ctxType engine.ContextType, claims engine.Claims) (context.Context, error) {
-	strToken, err := a.createIdentity(claims)
+// CreateIdentityWithContext .
+func (a *authenticator) CreateIdentityWithContext(ctx context.Context, ctxType engine.ContextType, claims engine.Claims) (context.Context, error) {
+	strToken, err := a.CreateIdentity(claims)
 	if err != nil {
 		return ctx, err
 	}
 	ctx = engine.MDWithAuth(ctx, strToken, ctxType)
 	return ctx, nil
+}
+
+// CreateIdentity .
+func (a *authenticator) CreateIdentity(claims engine.Claims) (string, error) {
+	jwtToken := jwtSdk.NewWithClaims(a.opts.signingMethod, claimsToJwtClaims(claims))
+
+	strToken, err := a.generateToken(jwtToken)
+	if err != nil {
+		return "", err
+	}
+	return strToken, nil
 }
 
 func (a *authenticator) authenticate(token string) (engine.Claims, error) {
@@ -80,16 +91,6 @@ func (a *authenticator) authenticate(token string) (engine.Claims, error) {
 		return nil, err
 	}
 	return claims, nil
-}
-
-func (a *authenticator) createIdentity(claims engine.Claims) (string, error) {
-	jwtToken := jwtSdk.NewWithClaims(a.opts.signingMethod, claimsToJwtClaims(claims))
-
-	strToken, err := a.generateToken(jwtToken)
-	if err != nil {
-		return "", err
-	}
-	return strToken, nil
 }
 
 func (a *authenticator) parseToken(token string) (*jwtSdk.Token, error) {

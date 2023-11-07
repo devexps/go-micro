@@ -14,6 +14,9 @@ type Authenticator interface {
 	// Authenticate returns a claims info and nil error (if available).
 	Authenticate(ctx context.Context, ctxType ContextType) (Claims, error)
 
-	// CreateIdentity injects user claims into context.
-	CreateIdentity(ctx context.Context, ctxType ContextType, claims Claims) (context.Context, error)
+	// CreateIdentityWithContext injects user claims into context.
+	CreateIdentityWithContext(ctx context.Context, ctxType ContextType, claims Claims) (context.Context, error)
+
+	// CreateIdentity inject user claims into token string.
+	CreateIdentity(claims Claims) (string, error)
 }

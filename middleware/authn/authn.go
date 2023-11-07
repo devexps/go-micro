@@ -30,7 +30,7 @@ func Client(authenticator engine.Authenticator, opts ...Option) middleware.Middl
 	return func(handler middleware.Handler) middleware.Handler {
 		return func(ctx context.Context, req interface{}) (interface{}, error) {
 			var err error
-			if ctx, err = authenticator.CreateIdentity(ctx, engine.ContextTypeMicro, o.claims); err != nil {
+			if ctx, err = authenticator.CreateIdentityWithContext(ctx, engine.ContextTypeMicro, o.claims); err != nil {
 				log.Errorf("authenticator middleware create token failed: %v", err.Error())
 			}
 			return handler(ctx, req)

@@ -21,9 +21,14 @@ func (a authenticator) Authenticate(ctx context.Context, ctxType engine.ContextT
 	return &Claims{}, nil
 }
 
-// CreateIdentity .
-func (a authenticator) CreateIdentity(ctx context.Context, ctxType engine.ContextType, claims engine.Claims) (context.Context, error) {
+// CreateIdentityWithContext .
+func (a authenticator) CreateIdentityWithContext(ctx context.Context, ctxType engine.ContextType, claims engine.Claims) (context.Context, error) {
 	return ctx, nil
+}
+
+// CreateIdentity .
+func (a authenticator) CreateIdentity(claims engine.Claims) (string, error) {
+	return "", nil
 }
 
 // Claims is a custom claims object
