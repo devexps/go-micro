@@ -1,4 +1,4 @@
 package micro
 
 // Release is the current micro version.
-const Release = "v2.0.1"
+const Release = "v2.0.2"
