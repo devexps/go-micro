@@ -5,7 +5,7 @@ go 1.18
 replace github.com/devexps/go-micro/v2 => ../../
 
 require (
-	github.com/devexps/go-micro/v2 v2.0.0
+	github.com/devexps/go-micro/v2 v2.0.1
 	go.uber.org/zap v1.23.0
 )
 
