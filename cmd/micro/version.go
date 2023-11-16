@@ -1,4 +1,4 @@
 package main
 
 // release is the current micro tool version.
-const release = "v2.0.2"
+const release = "v2.0.3"

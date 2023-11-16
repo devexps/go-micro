@@ -6,7 +6,7 @@ replace github.com/devexps/go-micro/v2 => ../../../../
 
 require (
 	github.com/casbin/casbin/v2 v2.71.1
-	github.com/devexps/go-micro/v2 v2.0.2
+	github.com/devexps/go-micro/v2 v2.0.3
 )
 
 require (

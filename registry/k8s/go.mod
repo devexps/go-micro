@@ -5,7 +5,7 @@ go 1.18
 replace github.com/devexps/go-micro/v2 => ../../
 
 require (
-	github.com/devexps/go-micro/v2 v2.0.2
+	github.com/devexps/go-micro/v2 v2.0.3
 	github.com/json-iterator/go v1.1.12
 	k8s.io/api v0.26.3
 	k8s.io/apimachinery v0.26.3

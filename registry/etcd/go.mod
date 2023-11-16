@@ -5,7 +5,7 @@ go 1.18
 replace github.com/devexps/go-micro/v2 => ../../
 
 require (
-	github.com/devexps/go-micro/v2 v2.0.2
+	github.com/devexps/go-micro/v2 v2.0.3
 	go.etcd.io/etcd/client/v3 v3.5.8
 	google.golang.org/grpc v1.46.2
 )

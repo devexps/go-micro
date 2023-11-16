@@ -5,7 +5,7 @@ go 1.18
 replace github.com/devexps/go-micro/v2 => ../../
 
 require (
-	github.com/devexps/go-micro/v2 v2.0.2
+	github.com/devexps/go-micro/v2 v2.0.3
 	github.com/gorilla/mux v1.8.0
 	github.com/stretchr/testify v1.7.1
 )
