@@ -3,7 +3,7 @@ module github.com/devexps/go-micro/v2
 go 1.18
 
 require (
-	github.com/devexps/go-pkg/v2 v2.0.0
+	github.com/devexps/go-pkg/v2 v2.0.1
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/go-playground/form/v4 v4.2.0
 	github.com/golang/protobuf v1.5.3
