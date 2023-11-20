@@ -1,54 +1,46 @@
 package broker
 
-import "context"
-
-type Any interface{}
-
-type Binder func() Any
-
-type Headers map[string]string
-
-type Handler func(context.Context, Event) error
-
-type Message struct {
-	Headers Headers
-	Body    Any
-}
-
-func (m Message) GetHeaders() Headers {
-	return m.Headers
-}
-
-func (m Message) GetHeader(key string) string {
-	if m.Headers == nil {
-		return ""
-	}
-	return m.Headers[key]
-}
-
-type Event interface {
-	Topic() string
-	Message() *Message
-	Ack() error
-	Error() error
-}
-
-type Subscriber interface {
-	Options() SubscribeOptions
-	Topic() string
-	Unsubscribe() error
-}
+import (
+	"context"
+	"fmt"
+)
 
 type Broker interface {
 	Name() string
+
 	Options() Options
+
 	Address() string
 
 	Init(...Option) error
 
 	Connect() error
+
 	Disconnect() error
 
-	Publish(topic string, msg Any, opts ...PublishOption) error
+	Publish(ctx context.Context, topic string, msg Any, opts ...PublishOption) error
+
 	Subscribe(topic string, handler Handler, binder Binder, opts ...SubscribeOption) (Subscriber, error)
+}
+
+func Subscribe[T any](broker Broker, topic string, handler func(context.Context, string, Headers, *T) error, opts ...SubscribeOption) (Subscriber, error) {
+	return broker.Subscribe(
+		topic,
+		func(ctx context.Context, event Event) error {
+			switch t := event.Message().Body.(type) {
+			case *T:
+				if err := handler(ctx, event.Topic(), event.Message().Headers, t); err != nil {
+					return err
+				}
+			default:
+				return fmt.Errorf("unsupported type: %T", t)
+			}
+			return nil
+		},
+		func() Any {
+			var t T
+			return &t
+		},
+		opts...,
+	)
 }

@@ -2,6 +2,7 @@ package kafka
 
 import (
 	"github.com/devexps/go-micro/v2/broker"
+
 	kafkaGo "github.com/segmentio/kafka-go"
 )
 

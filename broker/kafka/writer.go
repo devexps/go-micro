@@ -2,9 +2,10 @@ package kafka
 
 import (
 	"crypto/tls"
+	"time"
+
 	kafkaGo "github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/sasl"
-	"time"
 )
 
 type WriterConfig struct {

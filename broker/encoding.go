@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/gob"
 	"errors"
+
 	"github.com/devexps/go-micro/v2/encoding"
 	_ "github.com/devexps/go-micro/v2/encoding/json"
 	_ "github.com/devexps/go-micro/v2/encoding/proto"
