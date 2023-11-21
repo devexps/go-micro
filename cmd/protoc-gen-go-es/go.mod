@@ -1,6 +1,6 @@
 module github.com/devexps/go-micro/cmd/protoc-gen-go-es/v2
 
-go 1.18
+go 1.19
 
 require (
 	github.com/devexps/go-micro/v2 v2.0.4
