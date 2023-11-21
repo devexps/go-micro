@@ -35,6 +35,7 @@ type Server struct {
 
 	network string
 	address string
+	path    string
 
 	timeout time.Duration
 
@@ -67,6 +68,7 @@ func NewServer(opts ...ServerOption) *Server {
 		timeout:     1 * time.Second,
 		router:      mux.NewRouter(),
 		strictSlash: true,
+		path:        "/",
 
 		bufferSize:   DefaultBufferSize,
 		encodeBase64: false,
@@ -130,6 +132,7 @@ func (s *Server) Start(ctx context.Context) error {
 	if !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
+	s.HandleServeHTTP(s.path)
 
 	return nil
 }
@@ -171,7 +174,7 @@ func (s *Server) HandleServeHTTP(path string) {
 // If the stream's buffer is full, it blocks until the message is sent out to
 // all subscribers (but not necessarily arrived the clients), or when the
 // stream is closed.
-func (s *Server) Publish(streamId StreamID, event *Event) {
+func (s *Server) Publish(_ context.Context, streamId StreamID, event *Event) {
 	stream := s.streamMgr.Get(streamId)
 	if stream == nil {
 		return
@@ -186,7 +189,7 @@ func (s *Server) Publish(streamId StreamID, event *Event) {
 // the call to be blocked, it simply drops the message and returns false.
 // Together with a small BufferSize, it can be useful when publishing the
 // latest message ASAP is more important than reliable delivery.
-func (s *Server) TryPublish(streamId StreamID, event *Event) bool {
+func (s *Server) TryPublish(_ context.Context, streamId StreamID, event *Event) bool {
 	stream := s.streamMgr.Get(streamId)
 	if stream == nil {
 		return false
@@ -200,7 +203,7 @@ func (s *Server) TryPublish(streamId StreamID, event *Event) bool {
 }
 
 // PublishData will encode message and Publish it to every client in a streamID
-func (s *Server) PublishData(streamId StreamID, data MessagePayload) error {
+func (s *Server) PublishData(ctx context.Context, streamId StreamID, data MessagePayload) error {
 	event := &Event{}
 
 	var err error
@@ -208,7 +211,7 @@ func (s *Server) PublishData(streamId StreamID, data MessagePayload) error {
 	if err != nil {
 		return err
 	}
-	s.Publish(streamId, event)
+	s.Publish(ctx, streamId, event)
 
 	return nil
 }

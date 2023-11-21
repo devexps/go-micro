@@ -26,6 +26,13 @@ func WithAddress(addr string) ServerOption {
 	}
 }
 
+// WithPath with path string
+func WithPath(path string) ServerOption {
+	return func(s *Server) {
+		s.path = path
+	}
+}
+
 // WithTimeout with server timeout
 func WithTimeout(timeout time.Duration) ServerOption {
 	return func(s *Server) {
