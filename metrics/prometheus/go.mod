@@ -5,7 +5,7 @@ go 1.19
 replace github.com/devexps/go-micro/v2 => ../../
 
 require (
-	github.com/devexps/go-micro/v2 v2.0.4
+	github.com/devexps/go-micro/v2 v2.0.5
 	github.com/prometheus/client_golang v1.17.0
 )
 

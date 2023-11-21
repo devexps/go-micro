@@ -5,7 +5,7 @@ go 1.19
 replace github.com/devexps/go-micro/v2 => ../../
 
 require (
-	github.com/devexps/go-micro/v2 v2.0.4
+	github.com/devexps/go-micro/v2 v2.0.5
 	github.com/sirupsen/logrus v1.9.3
 )
 
