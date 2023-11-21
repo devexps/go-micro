@@ -2,6 +2,7 @@ package kafka
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"sync"
 
@@ -21,9 +22,9 @@ var (
 type SubscriberMap map[string]broker.Subscriber
 
 type SubscribeOption struct {
-	handler broker.Handler
-	binder  broker.Binder
-	opts    []broker.SubscribeOption
+	handler          broker.Handler
+	binder           broker.Binder
+	subscribeOptions []broker.SubscribeOption
 }
 type SubscribeOptionMap map[string]*SubscribeOption
 
@@ -36,31 +37,42 @@ type Server struct {
 
 	sync.RWMutex
 	started bool
+
 	baseCtx context.Context
 	err     error
 
-	keepAlive *utils.KeepAliveService
+	keepAlive       *utils.KeepAliveService
+	enableKeepAlive bool
 }
 
-// NewServer creates a server by options
 func NewServer(opts ...ServerOption) *Server {
 	srv := &Server{
-		baseCtx:        context.Background(),
-		subscribers:    SubscriberMap{},
-		subscriberOpts: SubscribeOptionMap{},
-		brokerOpts:     []broker.Option{},
-		started:        false,
-		keepAlive:      utils.NewKeepAliveService(nil),
+		baseCtx:         context.Background(),
+		subscribers:     SubscriberMap{},
+		subscriberOpts:  SubscribeOptionMap{},
+		brokerOpts:      []broker.Option{},
+		started:         false,
+		keepAlive:       utils.NewKeepAliveService(nil),
+		enableKeepAlive: true,
 	}
-	for _, o := range opts {
-		o(srv)
-	}
+
+	srv.doInjectOptions(opts...)
+
 	srv.Broker = kafka.NewBroker(srv.brokerOpts...)
 
 	return srv
 }
 
-// Endpoint return a real address to registry endpoint.
+func (s *Server) doInjectOptions(opts ...ServerOption) {
+	for _, o := range opts {
+		o(s)
+	}
+}
+
+func (s *Server) Name() string {
+	return string(KindKafka)
+}
+
 func (s *Server) Endpoint() (*url.URL, error) {
 	if s.err != nil {
 		return nil, s.err
@@ -68,49 +80,53 @@ func (s *Server) Endpoint() (*url.URL, error) {
 	return s.keepAlive.Endpoint()
 }
 
-// Start starts a server
 func (s *Server) Start(ctx context.Context) error {
 	if s.err != nil {
 		return s.err
 	}
+
 	if s.started {
 		return nil
 	}
+
 	s.err = s.Init()
 	if s.err != nil {
-		log.Errorf("[kafka] init broker failed: [%s]", s.err.Error())
+		log.Errorf("init broker failed: [%s]", s.err.Error())
 		return s.err
 	}
+
 	s.err = s.Connect()
 	if s.err != nil {
 		return s.err
 	}
-	go func() {
-		_ = s.keepAlive.Start()
-	}()
-	log.Infof("[kafka] server listening on: %s", s.Address())
+
+	if s.enableKeepAlive {
+		go func() {
+			_ = s.keepAlive.Start()
+		}()
+	}
+
+	log.Infof("server listening on: %s", s.Address())
 
 	s.err = s.doRegisterSubscriberMap()
 	if s.err != nil {
 		return s.err
 	}
+
 	s.baseCtx = ctx
 	s.started = true
 
 	return nil
 }
 
-// Stop stops a server
-func (s *Server) Stop(ctx context.Context) error {
+func (s *Server) Stop(_ context.Context) error {
 	if s.started == false {
 		return nil
 	}
-	log.Info("[kafka] server stopping")
+	log.Info("server stopping")
 
 	for _, v := range s.subscribers {
-		if err := v.Unsubscribe(); err != nil {
-			log.Errorf("[kafka] un-subscriber (%s) failed: [%s]", v.Topic(), err.Error())
-		}
+		_ = v.Unsubscribe()
 	}
 	s.subscribers = SubscriberMap{}
 	s.subscriberOpts = SubscribeOptionMap{}
@@ -133,24 +149,39 @@ func (s *Server) RegisterSubscriber(ctx context.Context, topic, queue string, di
 	if disableAutoAck {
 		opts = append(opts, broker.DisableAutoAck())
 	}
+
 	opts = append([]broker.SubscribeOption{broker.WithSubscribeContext(ctx)}, opts...)
 
 	if s.started {
 		return s.doRegisterSubscriber(topic, handler, binder, opts...)
 	} else {
-		s.subscriberOpts[topic] = &SubscribeOption{handler: handler, binder: binder, opts: opts}
+		s.subscriberOpts[topic] = &SubscribeOption{handler: handler, binder: binder, subscribeOptions: opts}
 	}
 	return nil
 }
 
-func (s *Server) doRegisterSubscriberMap() error {
-	for topic, opt := range s.subscriberOpts {
-		if err := s.doRegisterSubscriber(topic, opt.handler, opt.binder, opt.opts...); err != nil {
-			log.Errorf("[kafka] do register subscriber (%s) failed: [%s]", topic, err.Error())
-		}
-	}
-	s.subscriberOpts = SubscribeOptionMap{}
-	return nil
+func RegisterSubscriber[T any](srv *Server, ctx context.Context, topic, queue string, disableAutoAck bool, handler func(context.Context, string, broker.Headers, *T) error, opts ...broker.SubscribeOption) error {
+	return srv.RegisterSubscriber(ctx,
+		topic,
+		queue,
+		disableAutoAck,
+		func(ctx context.Context, event broker.Event) error {
+			switch t := event.Message().Body.(type) {
+			case *T:
+				if err := handler(ctx, event.Topic(), event.Message().Headers, t); err != nil {
+					return err
+				}
+			default:
+				return fmt.Errorf("unsupported type: %T", t)
+			}
+			return nil
+		},
+		func() broker.Any {
+			var t T
+			return &t
+		},
+		opts...,
+	)
 }
 
 func (s *Server) doRegisterSubscriber(topic string, handler broker.Handler, binder broker.Binder, opts ...broker.SubscribeOption) error {
@@ -158,6 +189,16 @@ func (s *Server) doRegisterSubscriber(topic string, handler broker.Handler, bind
 	if err != nil {
 		return err
 	}
+
 	s.subscribers[topic] = sub
+
+	return nil
+}
+
+func (s *Server) doRegisterSubscriberMap() error {
+	for topic, opt := range s.subscriberOpts {
+		_ = s.doRegisterSubscriber(topic, opt.handler, opt.binder, opt.subscribeOptions...)
+	}
+	s.subscriberOpts = SubscribeOptionMap{}
 	return nil
 }
