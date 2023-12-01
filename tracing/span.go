@@ -17,7 +17,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func setClientSpan(ctx context.Context, span trace.Span, m interface{}) {
+func SetClientSpan(ctx context.Context, span trace.Span, m interface{}) {
 	var (
 		attrs     []attribute.KeyValue
 		remote    string
@@ -56,7 +56,7 @@ func setClientSpan(ctx context.Context, span trace.Span, m interface{}) {
 	span.SetAttributes(attrs...)
 }
 
-func setServerSpan(ctx context.Context, span trace.Span, m interface{}) {
+func SetServerSpan(ctx context.Context, span trace.Span, m interface{}) {
 	var (
 		attrs     []attribute.KeyValue
 		remote    string

@@ -3,6 +3,7 @@ package tracing
 import (
 	"context"
 	"fmt"
+	"github.com/devexps/go-micro/v2/log"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -22,6 +23,7 @@ type Tracer struct {
 // NewTracer create tracer instance
 func NewTracer(kind trace.SpanKind, spanName string, opts ...Option) *Tracer {
 	op := options{
+		propagator: propagation.NewCompositeTextMapPropagator(Metadata{}, propagation.Baggage{}, propagation.TraceContext{}),
 		kind:       kind,
 		tracerName: defaultTracerName,
 		spanName:   spanName,
@@ -32,8 +34,9 @@ func NewTracer(kind trace.SpanKind, spanName string, opts ...Option) *Tracer {
 	if op.tracerProvider == nil {
 		op.tracerProvider = otel.GetTracerProvider()
 	}
-	if op.propagator == nil {
+	if len(otel.GetTextMapPropagator().Fields()) > 0 {
 		op.propagator = otel.GetTextMapPropagator()
+		log.Info("-->>>", op.propagator)
 	}
 	switch kind {
 	case trace.SpanKindProducer, trace.SpanKindConsumer:
@@ -46,7 +49,7 @@ func NewTracer(kind trace.SpanKind, spanName string, opts ...Option) *Tracer {
 }
 
 // Start starts tracing span
-func (t *Tracer) Start(ctx context.Context, carrier propagation.TextMapCarrier, attrs ...attribute.KeyValue) (context.Context, trace.Span) {
+func (t *Tracer) Start(ctx context.Context, operation string, carrier propagation.TextMapCarrier, attrs ...attribute.KeyValue) (context.Context, trace.Span) {
 	if t.opt.kind == trace.SpanKindServer || t.opt.kind == trace.SpanKindConsumer {
 		ctx = t.opt.propagator.Extract(ctx, carrier)
 	}
@@ -54,7 +57,7 @@ func (t *Tracer) Start(ctx context.Context, carrier propagation.TextMapCarrier, 
 		trace.WithAttributes(attrs...),
 		trace.WithSpanKind(t.opt.kind),
 	}
-	ctx, span := t.tracer.Start(ctx, t.opt.spanName, opts...)
+	ctx, span := t.tracer.Start(ctx, operation, opts...)
 	if t.opt.kind == trace.SpanKindClient || t.opt.kind == trace.SpanKindProducer {
 		t.Inject(ctx, carrier)
 	}

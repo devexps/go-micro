@@ -5,7 +5,7 @@ go 1.19
 replace github.com/devexps/go-micro/v2 => ../../
 
 require (
-	github.com/devexps/go-micro/v2 v2.0.5
+	github.com/devexps/go-micro/v2 v2.0.6
 	github.com/fluent/fluent-logger-golang v1.9.0
 )
 

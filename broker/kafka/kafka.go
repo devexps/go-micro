@@ -671,7 +671,7 @@ func (b *kafkaBroker) startProducerSpan(ctx context.Context, msg *kafkaGo.Messag
 	}
 
 	var span trace.Span
-	ctx, span = b.producerTracer.Start(ctx, carrier, attrs...)
+	ctx, span = b.producerTracer.Start(ctx, msg.Topic, carrier, attrs...)
 
 	return span
 }
@@ -706,7 +706,7 @@ func (b *kafkaBroker) startConsumerSpan(ctx context.Context, msg *kafkaGo.Messag
 	}
 
 	var span trace.Span
-	ctx, span = b.consumerTracer.Start(ctx, carrier, attrs...)
+	ctx, span = b.consumerTracer.Start(ctx, msg.Topic, carrier, attrs...)
 
 	return ctx, span
 }
