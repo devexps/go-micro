@@ -3,8 +3,6 @@ package tracing
 import (
 	"context"
 	"fmt"
-	"github.com/devexps/go-micro/v2/log"
-
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -36,7 +34,6 @@ func NewTracer(kind trace.SpanKind, spanName string, opts ...Option) *Tracer {
 	}
 	if len(otel.GetTextMapPropagator().Fields()) > 0 {
 		op.propagator = otel.GetTextMapPropagator()
-		log.Info("-->>>", op.propagator)
 	}
 	switch kind {
 	case trace.SpanKindProducer, trace.SpanKindConsumer:
