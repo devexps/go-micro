@@ -3,7 +3,7 @@ module github.com/devexps/go-micro/cmd/protoc-gen-go-es/v2
 go 1.19
 
 require (
-	github.com/devexps/go-micro/v2 v2.0.6
+	github.com/devexps/go-micro/v2 v2.0.7
 	google.golang.org/protobuf v1.31.0
 )
 

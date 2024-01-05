@@ -5,7 +5,7 @@ go 1.19
 replace github.com/devexps/go-micro/v2 => ../../
 
 require (
-	github.com/devexps/go-micro/v2 v2.0.6
+	github.com/devexps/go-micro/v2 v2.0.7
 	github.com/google/uuid v1.4.0
 	github.com/segmentio/kafka-go v0.4.46
 	github.com/stretchr/testify v1.8.4
