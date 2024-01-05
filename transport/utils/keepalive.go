@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"os"
 
 	"github.com/devexps/go-micro/v2/errors"
 )
@@ -70,7 +71,15 @@ func (s *KeepAliveService) generateEndpoint() error {
 	}
 	for {
 		port := s.generatePort(10000, 65535)
-		addr := fmt.Sprintf(":%d", port)
+		host := ""
+		if itf, ok := os.LookupEnv("GOMICRO_TRANSPORT_KEEPALIVE_INTERFACE"); ok {
+			h, err := getIPAddress(itf)
+			if err != nil {
+				return err
+			}
+			host = h
+		}
+		addr := fmt.Sprintf("%s:%d", host, port)
 		lis, err := net.Listen("tcp", addr)
 		if err == nil && lis != nil {
 			s.lis = lis
@@ -79,4 +88,27 @@ func (s *KeepAliveService) generateEndpoint() error {
 			return nil
 		}
 	}
+}
+
+func getIPAddress(interfaceName string) (string, error) {
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		return "", err
+	}
+	for _, iface := range interfaces {
+		if iface.Name == interfaceName {
+			addrs, err := iface.Addrs()
+			if err != nil {
+				return "", err
+			}
+			// Get the first IPv4 address
+			for _, addr := range addrs {
+				if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() && ipnet.IP.To4() != nil {
+					return ipnet.IP.String(), nil
+				}
+			}
+			return "", fmt.Errorf("no IPv4 address found for interface %s", interfaceName)
+		}
+	}
+	return "", fmt.Errorf("interface %s not found", interfaceName)
 }
