@@ -4,17 +4,27 @@ import (
 	"github.com/devexps/go-micro/v2/broker"
 	kafkaGo "github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/sasl/plain"
+	"github.com/segmentio/kafka-go/sasl/scram"
 	"hash"
 	"time"
 )
 
+type BalancerName string
+
 const (
-	LeastBytesBalancer    = "LeastBytes"
-	RoundRobinBalancer    = "RoundRobin"
-	HashBalancer          = "Hash"
-	ReferenceHashBalancer = "ReferenceHash"
-	Crc32Balancer         = "CRC32Balancer"
-	Murmur2Balancer       = "Murmur2Balancer"
+	LeastBytesBalancer    BalancerName = "LeastBytes"
+	RoundRobinBalancer    BalancerName = "RoundRobin"
+	HashBalancer          BalancerName = "Hash"
+	ReferenceHashBalancer BalancerName = "ReferenceHash"
+	Crc32Balancer         BalancerName = "CRC32Balancer"
+	Murmur2Balancer       BalancerName = "Murmur2Balancer"
+)
+
+type ScramAlgorithm string
+
+const (
+	ScramAlgorithmSHA256 ScramAlgorithm = "SHA256"
+	ScramAlgorithmSHA512 ScramAlgorithm = "SHA512"
 )
 
 ///
@@ -52,7 +62,7 @@ type asyncKey struct{}
 type maxAttemptsKey struct{}
 type readTimeoutKey struct{}
 type writeTimeoutKey struct{}
-type allowAutoTopicCreationKey struct{}
+type allowPublishAutoTopicCreationKey struct{}
 
 // WithReaderConfig .
 func WithReaderConfig(cfg kafkaGo.ReaderConfig) broker.Option {
@@ -69,11 +79,6 @@ func WithEnableOneTopicOneWriter(enable bool) broker.Option {
 	return broker.WithContextAndValue(enableOneTopicOneWriterKey{}, enable)
 }
 
-// WithDialer .
-func WithDialer(cfg *kafkaGo.Dialer) broker.Option {
-	return broker.WithContextAndValue(dialerConfigKey{}, cfg)
-}
-
 // WithPlainMechanism .
 func WithPlainMechanism(username, password string) broker.Option {
 	mechanism := plain.Mechanism{
@@ -81,6 +86,27 @@ func WithPlainMechanism(username, password string) broker.Option {
 		Password: password,
 	}
 	return broker.WithContextAndValue(mechanismKey{}, mechanism)
+}
+
+// WithScramMechanism .
+func WithScramMechanism(algoName ScramAlgorithm, username, password string) broker.Option {
+	var algo scram.Algorithm
+	switch algoName {
+	case ScramAlgorithmSHA256:
+		algo = scram.SHA256
+	case ScramAlgorithmSHA512:
+		algo = scram.SHA512
+	}
+	mechanism, err := scram.Mechanism(algo, username, password)
+	if err != nil {
+		panic(err)
+	}
+	return broker.WithContextAndValue(mechanismKey{}, mechanism)
+}
+
+// WithDialer .
+func WithDialer(cfg *kafkaGo.Dialer) broker.Option {
+	return broker.WithContextAndValue(dialerConfigKey{}, cfg)
 }
 
 // WithDialerTimeout .
@@ -224,9 +250,9 @@ func WithWriteTimeout(timeout time.Duration) broker.Option {
 	return broker.WithContextAndValue(writeTimeoutKey{}, timeout)
 }
 
-// WithAllowAutoTopicCreation .
-func WithAllowAutoTopicCreation(enable bool) broker.Option {
-	return broker.WithContextAndValue(allowAutoTopicCreationKey{}, enable)
+// WithAllowPublishAutoTopicCreation .
+func WithAllowPublishAutoTopicCreation(enable bool) broker.Option {
+	return broker.WithContextAndValue(allowPublishAutoTopicCreationKey{}, enable)
 }
 
 ///
@@ -238,7 +264,7 @@ type messageKeyKey struct{}
 type messageOffsetKey struct{}
 type balancerKey struct{}
 type balancerValue struct {
-	Name       string
+	Name       BalancerName
 	Consistent bool
 	Hasher     hash.Hash32
 }
@@ -319,3 +345,20 @@ func WithMurmur2Balancer(consistent bool) broker.PublishOption {
 ///
 /// SubscribeOption
 ///
+
+type autoSubscribeCreateTopicKey struct{}
+type autoSubscribeCreateTopicValue struct {
+	Topic             string
+	NumPartitions     int
+	ReplicationFactor int
+}
+
+func WithSubscribeAutoCreateTopic(topic string, numPartitions, replicationFactor int) broker.SubscribeOption {
+	return broker.WithSubscribeContextAndValue(autoSubscribeCreateTopicKey{},
+		&autoSubscribeCreateTopicValue{
+			Topic:             topic,
+			NumPartitions:     numPartitions,
+			ReplicationFactor: replicationFactor,
+		},
+	)
+}

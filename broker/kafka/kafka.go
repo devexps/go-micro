@@ -288,7 +288,7 @@ func (b *kafkaBroker) Init(opts ...broker.Option) error {
 		b.writerConfig.WriteTimeout = value
 	}
 
-	if value, ok := b.options.Context.Value(allowAutoTopicCreationKey{}).(bool); ok {
+	if value, ok := b.options.Context.Value(allowPublishAutoTopicCreationKey{}).(bool); ok {
 		b.writerConfig.AllowAutoTopicCreation = value
 	}
 
@@ -587,6 +587,12 @@ func (b *kafkaBroker) Subscribe(topic string, handler broker.Handler, binder bro
 	}
 	for _, o := range opts {
 		o(&options)
+	}
+
+	if value, ok := options.Context.Value(autoSubscribeCreateTopicKey{}).(*autoSubscribeCreateTopicValue); ok {
+		if err := CreateTopic(b.Address(), value.Topic, value.NumPartitions, value.ReplicationFactor); err != nil {
+			log.Errorf("[kafka] create topic error: %s", err.Error())
+		}
 	}
 
 	readerConfig := b.readerConfig
